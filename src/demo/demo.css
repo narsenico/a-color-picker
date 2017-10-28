@@ -1,0 +1,17 @@
+body {
+	background-color: #afafaf;
+	width: 3000px;
+}
+
+.picker.absolute {
+	position: absolute;
+	top: 70px;
+	left: 300px;
+}
+.container {
+	position: relative;
+	border: dashed 2px #333;
+	width: 700px;
+	height: 500px;
+	margin: 100px;
+}
