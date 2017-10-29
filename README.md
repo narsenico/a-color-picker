@@ -1,7 +1,7 @@
 # a-color-picker
 A color picker for web app
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![live demo](https://img.shields.io/badge/demo-codepen-yellow.svg)](https://codepen.io/narsenico/pen/xPxNeE)
+[![npm version](https://badge.fury.io/js/a-color-picker.svg)](https://badge.fury.io/js/a-color-picker) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![live demo](https://img.shields.io/badge/demo-codepen-yellow.svg)](https://codepen.io/narsenico/pen/xPxNeE)
 
 ![a-color-picker screenshot](/screenshot.png)
 
