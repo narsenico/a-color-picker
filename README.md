@@ -1,6 +1,8 @@
 # a-color-picker
 A color picker for web app
 
+![a-color-picker screenshot](/screenshot.png)
+
 ## Usage
 1. Include `acolorpicker.js`
     ```html
