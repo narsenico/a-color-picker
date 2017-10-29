@@ -1,4 +1,5 @@
 import './main.css';
+import { COLOR_NAMES, rgbToHex, hslToRgb, rgbToHsl } from './utils.js';
 
 'use strict';
 
@@ -10,19 +11,19 @@ const DEFAULT = {
     color: '#ff0000'
 };
 
-const NAMED_COLORS = { 'aliceblue': '#F0F8FF', 'antiquewhite': '#FAEBD7', 'aqua': '#00FFFF', 'aquamarine': '#7FFFD4', 'azure': '#F0FFFF', 'beige': '#F5F5DC', 'bisque': '#FFE4C4', 'black': '#000000', 'blanchedalmond': '#FFEBCD', 'blue': '#0000FF', 'blueviolet': '#8A2BE2', 'brown': '#A52A2A', 'burlywood': '#DEB887', 'cadetblue': '#5F9EA0', 'chartreuse': '#7FFF00', 'chocolate': '#D2691E', 'coral': '#FF7F50', 'cornflowerblue': '#6495ED', 'cornsilk': '#FFF8DC', 'crimson': '#DC143C', 'cyan': '#00FFFF', 'darkblue': '#00008B', 'darkcyan': '#008B8B', 'darkgoldenrod': '#B8860B', 'darkgray': '#A9A9A9', 'darkgrey': '#A9A9A9', 'darkgreen': '#006400', 'darkkhaki': '#BDB76B', 'darkmagenta': '#8B008B', 'darkolivegreen': '#556B2F', 'darkorange': '#FF8C00', 'darkorchid': '#9932CC', 'darkred': '#8B0000', 'darksalmon': '#E9967A', 'darkseagreen': '#8FBC8F', 'darkslateblue': '#483D8B', 'darkslategray': '#2F4F4F', 'darkslategrey': '#2F4F4F', 'darkturquoise': '#00CED1', 'darkviolet': '#9400D3', 'deeppink': '#FF1493', 'deepskyblue': '#00BFFF', 'dimgray': '#696969', 'dimgrey': '#696969', 'dodgerblue': '#1E90FF', 'firebrick': '#B22222', 'floralwhite': '#FFFAF0', 'forestgreen': '#228B22', 'fuchsia': '#FF00FF', 'gainsboro': '#DCDCDC', 'ghostwhite': '#F8F8FF', 'gold': '#FFD700', 'goldenrod': '#DAA520', 'gray': '#808080', 'grey': '#808080', 'green': '#008000', 'greenyellow': '#ADFF2F', 'honeydew': '#F0FFF0', 'hotpink': '#FF69B4', 'indianred ': '#CD5C5C', 'indigo ': '#4B0082', 'ivory': '#FFFFF0', 'khaki': '#F0E68C', 'lavender': '#E6E6FA', 'lavenderblush': '#FFF0F5', 'lawngreen': '#7CFC00', 'lemonchiffon': '#FFFACD', 'lightblue': '#ADD8E6', 'lightcoral': '#F08080', 'lightcyan': '#E0FFFF', 'lightgoldenrodyellow': '#FAFAD2', 'lightgray': '#D3D3D3', 'lightgrey': '#D3D3D3', 'lightgreen': '#90EE90', 'lightpink': '#FFB6C1', 'lightsalmon': '#FFA07A', 'lightseagreen': '#20B2AA', 'lightskyblue': '#87CEFA', 'lightslategray': '#778899', 'lightslategrey': '#778899', 'lightsteelblue': '#B0C4DE', 'lightyellow': '#FFFFE0', 'lime': '#00FF00', 'limegreen': '#32CD32', 'linen': '#FAF0E6', 'magenta': '#FF00FF', 'maroon': '#800000', 'mediumaquamarine': '#66CDAA', 'mediumblue': '#0000CD', 'mediumorchid': '#BA55D3', 'mediumpurple': '#9370DB', 'mediumseagreen': '#3CB371', 'mediumslateblue': '#7B68EE', 'mediumspringgreen': '#00FA9A', 'mediumturquoise': '#48D1CC', 'mediumvioletred': '#C71585', 'midnightblue': '#191970', 'mintcream': '#F5FFFA', 'mistyrose': '#FFE4E1', 'moccasin': '#FFE4B5', 'navajowhite': '#FFDEAD', 'navy': '#000080', 'oldlace': '#FDF5E6', 'olive': '#808000', 'olivedrab': '#6B8E23', 'orange': '#FFA500', 'orangered': '#FF4500', 'orchid': '#DA70D6', 'palegoldenrod': '#EEE8AA', 'palegreen': '#98FB98', 'paleturquoise': '#AFEEEE', 'palevioletred': '#DB7093', 'papayawhip': '#FFEFD5', 'peachpuff': '#FFDAB9', 'peru': '#CD853F', 'pink': '#FFC0CB', 'plum': '#DDA0DD', 'powderblue': '#B0E0E6', 'purple': '#800080', 'rebeccapurple': '#663399', 'red': '#FF0000', 'rosybrown': '#BC8F8F', 'royalblue': '#4169E1', 'saddlebrown': '#8B4513', 'salmon': '#FA8072', 'sandybrown': '#F4A460', 'seagreen': '#2E8B57', 'seashell': '#FFF5EE', 'sienna': '#A0522D', 'silver': '#C0C0C0', 'skyblue': '#87CEEB', 'slateblue': '#6A5ACD', 'slategray': '#708090', 'slategrey': '#708090', 'snow': '#FFFAFA', 'springgreen': '#00FF7F', 'steelblue': '#4682B4', 'tan': '#D2B48C', 'teal': '#008080', 'thistle': '#D8BFD8', 'tomato': '#FF6347', 'turquoise': '#40E0D0', 'violet': '#EE82EE', 'wheat': '#F5DEB3', 'white': '#FFFFFF', 'whitesmoke': '#F5F5F5', 'yellow': '#FFFF00', 'yellowgreen': '#9ACD32' };
-
 const SL_BAR_SIZE = [200, 150],
     HUE_BAR_SIZE = [150, 16],
     HUE = 'H',
     SATURATION = 'S',
     LUMINANCE = 'L',
-    RGBA = 'RGBA',
+    RGB = 'RGB',
     RED = 'R',
     GREEN = 'G',
     BLUE = 'B',
     RGBHEX = 'RGBHEX',
-    COLOR = 'COLOR';
+    COLOR = 'COLOR',
+    RGB_USER = 'RGB_USER',
+    HSL_USER = 'HSL_USER';
 
 const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                             <canvas class="a-color-picker-sl"></canvas>
@@ -131,23 +132,9 @@ function canvasHelper(canvas) {
     }
 }
 
-/**
- * Converte il colore da [r,g,b] al formato RGB HEX.
- *
- * @param      {number}  r       rosso (0-255)
- * @param      {number}  g       verde (0-255)
- * @param      {number}  b       blu (0-255)
- * @return     {string}  colore nel fomrato RGB HX (es: #ffdd00)
- */
-function rgbToHex(r, g, b) {
-    if (r > 255 || g > 255 || b > 255)
-        throw 'Invalid color component';
-    return "#" + ("000000" + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-}
-
 function cssColorToRgb(color) {
     if (color) {
-        const colorByName = NAMED_COLORS[color.toString().toLowerCase()];
+        const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
         // considero sia il formato esteso #RRGGGBB che quello corto #RGB
         // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
         const [, , , r, g, b, , rr, gg, bb] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F]))|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})))\s*$/i.exec(colorByName || color) || [];
@@ -169,6 +156,7 @@ function cssColorToRgb(color) {
  */
 function parseColorToRgb(color) {
     if (Array.isArray(color)) {
+        color = [limit(color[0], 0, 255), limit(color[1], 0, 255), limit(color[2], 0, 255)];
         return color;
     } else {
         const parsed = cssColorToRgb(color);
@@ -180,104 +168,23 @@ function parseColorToRgb(color) {
     }
 }
 
-/**
- * Converte da RGB a HSL.
- * @see https://gist.github.com/mjackson/5311256
- * 
- * @param      {number}  r       rosso 0-255
- * @param      {number}  g       veerde 0-255
- * @param      {number}  b       blu 0-255
- * @return     {Array}   un array con H(0-360) S(0-100) L(0-100)
- */
-function rgbToHsl(r, g, b) {
-    [r, g, b] = [r / 255, g / 255, b / 255];
-
-    var max = Math.max(r, g, b),
-        min = Math.min(r, g, b);
-    var h, s, l = (max + min) / 2;
-
-    if (max == min) {
-        h = s = 0; // achromatic
-    } else {
-        var d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-        switch (max) {
-            case r:
-                h = (g - b) / d + (g < b ? 6 : 0);
-                break;
-            case g:
-                h = (b - r) / d + 2;
-                break;
-            case b:
-                h = (r - g) / d + 4;
-                break;
-        }
-
-        h /= 6;
-    }
-
-    return [h * 360, s * 100, l * 100].map(Math.round);
-}
-
-/**
- * Converte da HSL a RGB.
- * @see https://gist.github.com/mjackson/5311256
- *
- * @param      {number}                   h       hue 0-360
- * @param      {number}                   s       saturaion 0-100
- * @param      {(Function|number)}        l       luminance 0-100
- * @return     {Array}  un array con R(0-255) G(0-255) B(0-255)
- */
-function hslToRgb(h, s, l) {
-    var r, g, b;
-    [h, s, l] = [h / 360, s / 100, l / 100];
-
-    if (s == 0) {
-        r = g = b = l; // achromatic
-    } else {
-        function hue2rgb(p, q, t) {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-        }
-
-        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        var p = 2 * l - q;
-
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
-
-    return [r * 255, g * 255, b * 255].map(Math.round);
-}
-
-function rgbToInt(r, g, b) {
-    r = (r << 16) & 0x00FF0000;
-    g = (g << 8) & 0x0000FF00;
-    b = b & 0x000000FF;
-    return 0xFF000000 | r | g | b;
-}
-
-function intToRgb(value) {
-    return [
-        (value >> 16) & 255, //r
-        (value >> 8) & 255, //g
-        value & 255 //b
-    ];
-}
-
 function limit(value, min, max) {
-    return value < min ? min : value > max ? max : value;
+    value = +value;
+    return isNaN(value) ? min : value < min ? min : value > max ? max : value;
 }
 
 class ColorPicker {
     constructor(options) {
-        this.options = Object.assign({}, DEFAULT, options);
+        let container = parseElemnt(options);
+        if (container) {
+            // se viene passato al costrutto un elemento HTML uso le opzioni di default
+            this.options = Object.assign({}, DEFAULT, { attachTo: options });
+        } else {
+            // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
+            this.options = Object.assign({}, DEFAULT, options);
+            container = parseElemnt(this.options.attachTo);
+        }
+
         this.H = 0;
         this.S = 0;
         this.L = 0;
@@ -285,9 +192,8 @@ class ColorPicker {
         this.G = 0;
         this.B = 0;
 
-        // creo gli elementi HTML e li aggiungo al container
-        const container = parseElemnt(this.options.attachTo);
         if (container) {
+            // creo gli elementi HTML e li aggiungo al container
             const box = document.createElement('div');
             box.className = 'a-color-picker';
             // se falsy viene nascosto .a-color-picker-rgb
@@ -300,27 +206,27 @@ class ColorPicker {
             container.appendChild(box);
             // preparo il canvas con tutto lo spettro del HUE (da 0 a 360)
             // in base al valore selezionato su questo canvas verrà disegnato il canvas per SL
-            const hueBar = container.querySelector('.a-color-picker-h');
+            const hueBar = box.querySelector('.a-color-picker-h');
             this.setupHueCanvas(hueBar);
             this.hueBarHelper = canvasHelper(hueBar);
-            this.huePointer = container.querySelector('.a-color-picker-h+.a-color-picker-dot');
+            this.huePointer = box.querySelector('.a-color-picker-h+.a-color-picker-dot');
             // preparo il canvas per SL (saturation e luminance)
-            const slBar = container.querySelector('.a-color-picker-sl');
+            const slBar = box.querySelector('.a-color-picker-sl');
             this.setupSlCanvas(slBar);
             this.slBarHelper = canvasHelper(slBar);
-            this.slPointer = container.querySelector('.a-color-picker-sl+.a-color-picker-dot');
+            this.slPointer = box.querySelector('.a-color-picker-sl+.a-color-picker-dot');
             // preparo il box della preview
-            this.preview = container.querySelector('.a-color-picker-preview');
+            this.preview = box.querySelector('.a-color-picker-preview');
             this.setupClipboard(this.preview.querySelector('.a-color-picker-clipbaord'));
             // prearo gli input box
-            this.setupInput(this.inputH = container.querySelector('.a-color-picker-hsl>input[name=H]'));
-            this.setupInput(this.inputS = container.querySelector('.a-color-picker-hsl>input[name=S]'));
-            this.setupInput(this.inputL = container.querySelector('.a-color-picker-hsl>input[name=L]'));
-            this.setupInput(this.inputR = container.querySelector('.a-color-picker-rgb>input[name=R]'));
-            this.setupInput(this.inputG = container.querySelector('.a-color-picker-rgb>input[name=G]'));
-            this.setupInput(this.inputB = container.querySelector('.a-color-picker-rgb>input[name=B]'));
+            this.setupInput(this.inputH = box.querySelector('.a-color-picker-hsl>input[name=H]'));
+            this.setupInput(this.inputS = box.querySelector('.a-color-picker-hsl>input[name=S]'));
+            this.setupInput(this.inputL = box.querySelector('.a-color-picker-hsl>input[name=L]'));
+            this.setupInput(this.inputR = box.querySelector('.a-color-picker-rgb>input[name=R]'));
+            this.setupInput(this.inputG = box.querySelector('.a-color-picker-rgb>input[name=G]'));
+            this.setupInput(this.inputB = box.querySelector('.a-color-picker-rgb>input[name=B]'));
             // preparo l'input per il formato hex css
-            this.setupInput(this.inputRGBHEX = container.querySelector('input[name=RGBHEX]'));
+            this.setupInput(this.inputRGBHEX = box.querySelector('input[name=RGBHEX]'));
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
@@ -331,7 +237,7 @@ class ColorPicker {
     setupHueCanvas(canvas) {
         canvas.width = HUE_BAR_SIZE[0];
         canvas.height = HUE_BAR_SIZE[1];
-        // disegno sul convas applicando un gradiente lineare che copra tutti i possibili valori di HUE
+        // disegno sul canvas applicando un gradiente lineare che copra tutti i possibili valori di HUE
         //  quindi ci vogliono 361 stop (da 0 a 360), mantendo fisse S e L
         const ctx = canvas.getContext('2d'),
             gradient = ctx.createLinearGradient(0, 0, HUE_BAR_SIZE[0], 0),
@@ -379,7 +285,7 @@ class ColorPicker {
             // console.log('grab', x, y, c)
             this.slPointer.style.left = (x - 7) + 'px';
             this.slPointer.style.top = (y - 7) + 'px';
-            this.onValueChanged(RGBA, c);
+            this.onValueChanged(RGB, c);
         };
         // mouse down sul canvas: intercetto il movimento, smetto appena il mouse viene sollevato
         canvas.addEventListener('mousedown', (e) => {
@@ -423,15 +329,13 @@ class ColorPicker {
         // console.log(prop, value);
         switch (prop) {
             case HUE:
-                // imposto il valore dello HUE al canvas dedicato a saturazione/luminosità
-                this.slBarHelper.setHue(value);
                 this.H = value;
                 [this.R, this.G, this.B] = hslToRgb(this.H, this.S, this.L);
+                this.slBarHelper.setHue(value);
                 this.updatePointerH(this.H);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case SATURATION:
                 this.S = value;
@@ -440,7 +344,6 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case LUMINANCE:
                 this.L = value;
@@ -449,7 +352,6 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case RED:
                 this.R = value;
@@ -459,7 +361,6 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case GREEN:
                 this.G = value;
@@ -469,7 +370,6 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case BLUE:
                 this.B = value;
@@ -479,15 +379,33 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
-            case RGBA:
-                [this.H, this.S, this.L] = rgbToHsl(...value);
+            case RGB:
                 [this.R, this.G, this.B] = value;
+                [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
+                break;
+            case RGB_USER:
+                [this.R, this.G, this.B] = value;
+                [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
+                this.slBarHelper.setHue(this.H);
+                this.updatePointerH(this.H);
+                this.updatePointerSL(this.H, this.S, this.L);
+                this.updateInputHSL(this.H, this.S, this.L);
+                this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputRGBHEX(this.R, this.G, this.B);
+                break;
+            case HSL_USER:
+                [this.H, this.S, this.L] = value;
+                [this.R, this.G, this.B] = hslToRgb(this.H, this.S, this.L);
+                this.slBarHelper.setHue(this.H);
+                this.updatePointerH(this.H);
+                this.updatePointerSL(this.H, this.S, this.L);
+                this.updateInputHSL(this.H, this.S, this.L);
+                this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputRGBHEX(this.R, this.G, this.B);
                 break;
             case RGBHEX:
                 [this.R, this.G, this.B] = cssColorToRgb(value) || [this.R, this.G, this.B];
@@ -497,7 +415,6 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
             case COLOR:
                 [this.R, this.G, this.B] = parseColorToRgb(value) || [0, 0, 0];
@@ -508,14 +425,14 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
-                this.onColorChanged(this.H, this.S, this.L);
                 break;
         }
+        // this.onColorChanged(this.H, this.S, this.L);
+        this.onColorChanged(this.R, this.G, this.B);
     }
 
-    onColorChanged(h, s, l) {
-        this.preview.style.backgroundColor = `hsl(${h},${s}%,${l}%)`
-        // TODO: scatenare listener esterni
+    onColorChanged(r, g, b) {
+        this.preview.style.backgroundColor = `rgb(${r},${g},${b})`;
         this.onchange && this.onchange();
     }
 
@@ -559,6 +476,10 @@ class ColorPicker {
  * - showHEX: indica se mostrare i campi per la definizione del colore in formato RGB HEX (default true)
  * - color: colore iniziale (default '#ff0000')
  *
+ * @param      {Object}          container Un elemento HTML che andrà a contenere il picker
+ * 
+ * oppure
+ * 
  * @param      {Object}          options  Le opzioni di creazione
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
@@ -570,8 +491,18 @@ function createPicker(options) {
             return [picker.R, picker.G, picker.B];
         },
 
+        set rgb([r, g, b]) {
+            [r, g, b] = [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)];
+            picker.onValueChanged(RGB_USER, [r, g, b]);
+        },
+
         get hsl() {
             return [picker.H, picker.S, picker.L];
+        },
+
+        set hsl([h, s, l]) {
+            [h, s, l] = [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100)];
+            picker.onValueChanged(HSL_USER, [h, s, l]);
         },
 
         get rgbhex() {
@@ -621,10 +552,5 @@ function createPicker(options) {
 
 export {
     createPicker,
-    rgbToHex,
-    parseColorToRgb,
-    rgbToHsl,
-    hslToRgb,
-    rgbToInt,
-    intToRgb
+    parseColorToRgb
 }
