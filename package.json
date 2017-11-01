@@ -1,12 +1,12 @@
 {
   "name": "a-color-picker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a color pikcer for web app",
   "main": "./dist/acolorpicker.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "build:dev": "webpack --display-used-exports --display-reasons --config webpack.dev.js",
-    "start": "webpack-dev-server --open-page demo.html --config webpack.dev.js"
+    "start": "webpack-dev-server --open-page demo.html --port 3000 --config webpack.dev.js"
   },
   "repository": {
     "type": "git",

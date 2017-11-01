@@ -3,6 +3,9 @@ import { COLOR_NAMES, rgbToHex, hslToRgb, rgbToHsl } from './utils.js';
 
 'use strict';
 
+const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
+    IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
+
 const DEFAULT = {
     attachTo: 'body',
     showHSL: true,
@@ -54,7 +57,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                         </div>
                         <div class="a-color-picker-row a-color-picker-single-input">
                             <label>HEX</label>
-                            <input name="RGBHEX" type="text" maxlength="7">
+                            <input name="RGBHEX" type="text" select-on-focus>
                         </div>`;
 
 function parseElemnt(element, defaultElement, fallToDefault) {
@@ -254,19 +257,21 @@ class ColorPicker {
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
         const onMouseMove = (e) => {
-            const x = limit(e.clientX - canvas.getBoundingClientRect().x, 0, HUE_BAR_SIZE[0]),
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, HUE_BAR_SIZE[0]),
                 hue = Math.round(x * 360 / HUE_BAR_SIZE[0]);
             this.huePointer.style.left = (x - 7) + 'px';
             this.onValueChanged(HUE, hue);
+        };
+        const onMouseUp = () => {
+            // rimuovo i listener, verranno riattivati al prossimo mousedown
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
         };
         // mouse down sul canvas: intercetto il movimento, smetto appena il mouse viene sollevato
         canvas.addEventListener('mousedown', (e) => {
             onMouseMove(e);
             document.addEventListener('mousemove', onMouseMove);
-            // il mouse up mi basta che venga intercettato solo una volta
-            document.addEventListener('mouseup', () => {
-                document.removeEventListener('mousemove', onMouseMove);
-            }, { once: true });
+            document.addEventListener('mouseup', onMouseUp);
         });
     }
 
@@ -279,22 +284,24 @@ class ColorPicker {
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
         const onMouseMove = (e) => {
-            const x = limit(e.clientX - canvas.getBoundingClientRect().x, 0, SL_BAR_SIZE[0] - 1),
-                y = limit(e.clientY - canvas.getBoundingClientRect().y, 0, SL_BAR_SIZE[1] - 1),
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, SL_BAR_SIZE[0] - 1),
+                y = limit(e.clientY - canvas.getBoundingClientRect().top, 0, SL_BAR_SIZE[1] - 1),
                 c = this.slBarHelper.grabColor(x, y);
             // console.log('grab', x, y, c)
             this.slPointer.style.left = (x - 7) + 'px';
             this.slPointer.style.top = (y - 7) + 'px';
             this.onValueChanged(RGB, c);
         };
+        const onMouseUp = () => {
+            // rimuovo i listener, verranno riattivati al prossimo mousedown
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
         // mouse down sul canvas: intercetto il movimento, smetto appena il mouse viene sollevato
         canvas.addEventListener('mousedown', (e) => {
             onMouseMove(e);
             document.addEventListener('mousemove', onMouseMove);
-            // il mouse up mi basta che venga intercettato solo una volta
-            document.addEventListener('mouseup', () => {
-                document.removeEventListener('mousemove', onMouseMove);
-            }, { once: true });
+            document.addEventListener('mouseup', onMouseUp);
         });
     }
 
@@ -302,11 +309,33 @@ class ColorPicker {
         const min = +input.min,
             max = +input.max,
             prop = input.name;
+        if (input.hasAttribute('select-on-focus')) {
+            input.addEventListener('focus', () => {
+                //non funziona in IE/Edge
+                input.select();
+            });
+        }
         if (input.type === 'text') {
             input.addEventListener('change', () => {
                 this.onValueChanged(prop, input.value);
             });
         } else {
+            if (IS_EDGE || IS_IE11) {
+                // edge modifica il valore con le frecce MA non scatena l'evento change
+                // quindi le intercetto impostando e.returnValue a false in modo
+                // che non il valore non venga modificato anche da edge subito dopo il keydown
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Up') {
+                        input.value = limit((+input.value) + 1, min, max);
+                        this.onValueChanged(prop, input.value);
+                        e.returnValue = false;
+                    } else if (e.key === 'Down') {
+                        input.value = limit((+input.value) - 1, min, max);
+                        this.onValueChanged(prop, input.value);
+                        e.returnValue = false;
+                    }
+                });
+            }
             input.addEventListener('change', () => {
                 const value = +input.value;
                 this.onValueChanged(prop, limit(value, min, max));
