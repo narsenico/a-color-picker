@@ -41,6 +41,7 @@ Options:
 - `showRGB`: (*Boolean*) If falsy hide the RGB inputs. Default **true**.
 - `showHEX`: (*Boolean*) If falsy hide the RGB HEX inputs. Default **true**.
 - `color`: (*Boolean*) Initial color. Default **#ff0000**.
+- **_NEW!_** `palette`: (*Array*) Array of predefined colors. Default **null**.
 
 ### Listen for color change
 Set onchange property with a handler function.
@@ -83,6 +84,26 @@ picker.color = '#008000';
 picker.color = '#fd0';
 // color name
 picker.color = 'green';
+```
+
+### Set up a palette of predefined colors
+![a-color-picker screenshot](/screenshot_palette.png)
+
+Using a default palette.
+```js
+const picker = AColorPicker.createPicker({
+    attachTo: 'div.container',
+    palette: AColorPicker.PALETTE_MATERIAL_CHROME
+    // palette: AColorPicker.PALETTE_MATERIAL_500
+});
+```
+Or a custon one.
+```js
+const picker = AColorPicker.createPicker({
+    attachTo: 'div.container',
+    // color format: name, css hex, rgb array
+    palette: ['lightgreen', '#fafafa', '#fdo', [255, 23, 46]]
+});
 ```
 
 ## Utilities
