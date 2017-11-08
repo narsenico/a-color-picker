@@ -11,7 +11,8 @@ const DEFAULT = {
     showHSL: true,
     showRGB: true,
     showHEX: true,
-    color: '#ff0000'
+    color: '#ff0000',
+    palette: null
 };
 
 const SL_BAR_SIZE = [200, 150],
@@ -58,7 +59,8 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                         <div class="a-color-picker-row a-color-picker-single-input">
                             <label>HEX</label>
                             <input name="RGBHEX" type="text" select-on-focus>
-                        </div>`;
+                        </div>
+                        <div class="a-color-picker-row a-color-picker-palette"></div>`;
 
 function parseElemnt(element, defaultElement, fallToDefault) {
     if (!element) {
@@ -188,48 +190,50 @@ class ColorPicker {
             container = parseElemnt(this.options.attachTo);
         }
 
-        this.H = 0;
-        this.S = 0;
-        this.L = 0;
-        this.R = 0;
-        this.G = 0;
-        this.B = 0;
-
         if (container) {
+            this.H = 0;
+            this.S = 0;
+            this.L = 0;
+            this.R = 0;
+            this.G = 0;
+            this.B = 0;
+
             // creo gli elementi HTML e li aggiungo al container
-            const box = document.createElement('div');
-            box.className = 'a-color-picker';
+            this.element = document.createElement('div');
+            this.element.className = 'a-color-picker';
             // se falsy viene nascosto .a-color-picker-rgb
-            if (!this.options.showRGB) box.className += ' hide-rgb';
+            if (!this.options.showRGB) this.element.className += ' hide-rgb';
             // se falsy viene nascosto .a-color-picker-hsl
-            if (!this.options.showHSL) box.className += ' hide-hsl';
+            if (!this.options.showHSL) this.element.className += ' hide-hsl';
             // se falsy viene nascosto .a-color-picker-single-input (css hex)
-            if (!this.options.showHEX) box.className += ' hide-single-input';
-            box.innerHTML = HTML_BOX;
-            container.appendChild(box);
+            if (!this.options.showHEX) this.element.className += ' hide-single-input';
+            this.element.innerHTML = HTML_BOX;
+            container.appendChild(this.element);
             // preparo il canvas con tutto lo spettro del HUE (da 0 a 360)
             // in base al valore selezionato su questo canvas verrà disegnato il canvas per SL
-            const hueBar = box.querySelector('.a-color-picker-h');
+            const hueBar = this.element.querySelector('.a-color-picker-h');
             this.setupHueCanvas(hueBar);
             this.hueBarHelper = canvasHelper(hueBar);
-            this.huePointer = box.querySelector('.a-color-picker-h+.a-color-picker-dot');
+            this.huePointer = this.element.querySelector('.a-color-picker-h+.a-color-picker-dot');
             // preparo il canvas per SL (saturation e luminance)
-            const slBar = box.querySelector('.a-color-picker-sl');
+            const slBar = this.element.querySelector('.a-color-picker-sl');
             this.setupSlCanvas(slBar);
             this.slBarHelper = canvasHelper(slBar);
-            this.slPointer = box.querySelector('.a-color-picker-sl+.a-color-picker-dot');
+            this.slPointer = this.element.querySelector('.a-color-picker-sl+.a-color-picker-dot');
             // preparo il box della preview
-            this.preview = box.querySelector('.a-color-picker-preview');
+            this.preview = this.element.querySelector('.a-color-picker-preview');
             this.setupClipboard(this.preview.querySelector('.a-color-picker-clipbaord'));
             // prearo gli input box
-            this.setupInput(this.inputH = box.querySelector('.a-color-picker-hsl>input[name=H]'));
-            this.setupInput(this.inputS = box.querySelector('.a-color-picker-hsl>input[name=S]'));
-            this.setupInput(this.inputL = box.querySelector('.a-color-picker-hsl>input[name=L]'));
-            this.setupInput(this.inputR = box.querySelector('.a-color-picker-rgb>input[name=R]'));
-            this.setupInput(this.inputG = box.querySelector('.a-color-picker-rgb>input[name=G]'));
-            this.setupInput(this.inputB = box.querySelector('.a-color-picker-rgb>input[name=B]'));
+            this.setupInput(this.inputH = this.element.querySelector('.a-color-picker-hsl>input[name=H]'));
+            this.setupInput(this.inputS = this.element.querySelector('.a-color-picker-hsl>input[name=S]'));
+            this.setupInput(this.inputL = this.element.querySelector('.a-color-picker-hsl>input[name=L]'));
+            this.setupInput(this.inputR = this.element.querySelector('.a-color-picker-rgb>input[name=R]'));
+            this.setupInput(this.inputG = this.element.querySelector('.a-color-picker-rgb>input[name=G]'));
+            this.setupInput(this.inputB = this.element.querySelector('.a-color-picker-rgb>input[name=B]'));
             // preparo l'input per il formato hex css
-            this.setupInput(this.inputRGBHEX = box.querySelector('input[name=RGBHEX]'));
+            this.setupInput(this.inputRGBHEX = this.element.querySelector('input[name=RGBHEX]'));
+            // preparo la palette con i colori predefiniti
+            this.setPalette(this.element.querySelector('.a-color-picker-palette'));
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
@@ -352,6 +356,33 @@ class ColorPicker {
             input.select();
             document.execCommand('copy');
         });
+    }
+
+    setPalette(row) {
+        if (Array.isArray(this.options.palette) && this.options.palette.length > 0) {
+            this.options.palette
+                .map(p => p && parseColorToRgb(p))
+                .filter(c => !!c)
+                .forEach((c) => {
+                    const el = document.createElement('div');
+                    const hex = rgbToHex(...c);
+                    el.className = 'a-color-picker-palette-color';
+                    el.style.backgroundColor = hex;
+                    el.setAttribute('data-color', hex);
+                    el.title = hex;
+                    row.appendChild(el);
+                });
+            row.addEventListener('click', (e) => {
+                if (e.target.className === 'a-color-picker-palette-color') {
+                    // visto che il colore letto da backgroundColor risulta nel formato rgb()
+                    // devo usare il valore hex originale
+                    this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
+                }
+            });
+        } else {
+            // la palette con i colori predefiniti viene nasconsta se non ci sono colori
+            row.style.display = 'none';
+        }
     }
 
     onValueChanged(prop, value) {
@@ -516,6 +547,10 @@ function createPicker(options) {
     const picker = new ColorPicker(options);
     let cbOnChange;
     return {
+        get element() {
+            return picker.element;
+        },
+
         get rgb() {
             return [picker.R, picker.G, picker.B];
         },

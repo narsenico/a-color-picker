@@ -7,7 +7,7 @@
     user-select: none;
     font-family: arial;
     font-size: 10px;
-    width: auto;
+    width: 208px;
 }
 
 .a-color-picker-row {
@@ -40,6 +40,9 @@
     border-radius: 50px;
     border: solid 1px #074462;
 }
+
+
+
 
 
 /*.a-color-picker-pointer {
@@ -129,4 +132,21 @@
     height: 100%;
     opacity: 0;
     cursor: pointer;
+}
+
+.a-color-picker-palette {
+    flex-flow: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.a-color-picker-palette-color {
+    width: 15px;
+    height: 15px;
+    flex: 0 1 15px;
+    margin: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 3px;
+    border: solid 1px rgba(203, 203, 203, 0.32);
 }

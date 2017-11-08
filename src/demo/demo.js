@@ -1,5 +1,6 @@
 import './demo.css';
 const AColorPicker = require('../main.js');
+const { PALETTE_MATERIAL_500, PALETTE_MATERIAL_CHROME } = require('../utils.js');
 
 const body = document.querySelector('body');
 const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
@@ -8,7 +9,9 @@ const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
         color: 'darkblue',
         showRGB: true,
         showHSL: true,
-        showHEX: true
+        showHEX: true,
+        // palette: ['purple', '#ffffff', 'ddd', [123,123,123]]
+        palette: PALETTE_MATERIAL_CHROME
     });
     picker.onchange = () => {
         // console.log(index, 'changed', picker.color);
