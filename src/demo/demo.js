@@ -10,8 +10,8 @@ const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
         showRGB: true,
         showHSL: true,
         showHEX: true,
-        // palette: ['purple', '#ffffff', 'ddd', [123,123,123]]
-        palette: PALETTE_MATERIAL_CHROME
+        palette: ['lightgreen', '#fafafa', '#fdo', [255, 23, 46]]
+        //palette: PALETTE_MATERIAL_CHROME
     });
     picker.onchange = () => {
         // console.log(index, 'changed', picker.color);
@@ -46,6 +46,6 @@ document.querySelector('#btnGetColor').addEventListener('click', () => {
             pickers.forEach((p) => {
                 p.color = this.value;
             });
-            break;            
+            break;
     }
 }));
