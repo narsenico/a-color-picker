@@ -1,5 +1,6 @@
 import './main.css';
-import { COLOR_NAMES, rgbToHex, hslToRgb, rgbToHsl } from './utils.js';
+import { COLOR_NAMES, PALETTE_MATERIAL_500, PALETTE_MATERIAL_CHROME, 
+    rgbToHex, hslToRgb, rgbToHsl, rgbToInt, intToRgb } from './utils.js';
 
 'use strict';
 
@@ -616,5 +617,13 @@ function createPicker(options) {
 
 export {
     createPicker,
-    parseColorToRgb
+    parseColorToRgb,
+    rgbToHex, 
+    hslToRgb, 
+    rgbToHsl, 
+    rgbToInt, 
+    intToRgb,
+    COLOR_NAMES, 
+    PALETTE_MATERIAL_500, 
+    PALETTE_MATERIAL_CHROME
 }
