@@ -1,6 +1,16 @@
 import './main.css';
-import { COLOR_NAMES, PALETTE_MATERIAL_500, PALETTE_MATERIAL_CHROME, 
-    rgbToHex, hslToRgb, rgbToHsl, rgbToInt, intToRgb } from './utils.js';
+import {
+    COLOR_NAMES,
+    PALETTE_MATERIAL_500,
+    PALETTE_MATERIAL_CHROME,
+    rgbToHex,
+    hslToRgb,
+    rgbToHsl,
+    rgbToInt,
+    intToRgb,
+    limit,
+    ensureArray
+} from './utils.js';
 
 'use strict';
 
@@ -13,7 +23,8 @@ const DEFAULT = {
     showRGB: true,
     showHEX: true,
     color: '#ff0000',
-    palette: null
+    palette: null,
+    paletteEditable: false
 };
 
 const SL_BAR_SIZE = [200, 150],
@@ -172,11 +183,6 @@ function parseColorToRgb(color) {
             // TODO: considerare il formato rgb(), rgba(), hsl() e hsla()
         }
     }
-}
-
-function limit(value, min, max) {
-    value = +value;
-    return isNaN(value) ? min : value < min ? min : value > max ? max : value;
 }
 
 class ColorPicker {
@@ -360,24 +366,68 @@ class ColorPicker {
     }
 
     setPalette(row) {
-        if (Array.isArray(this.options.palette) && this.options.palette.length > 0) {
-            this.options.palette
+        // palette è una copia di this.options.palette
+        const palette = ensureArray(this.options.palette);
+        if (this.options.paletteEditable || palette.length > 0) {
+            const addColorToPalette = (hex, refElement, fire) => {
+                // se il colore è già presente, non creo un nuovo <div> ma sposto quello esistente in coda
+                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + hex + '"]') ||                    
+                    document.createElement('div');
+                el.className = 'a-color-picker-palette-color';
+                el.style.backgroundColor = hex;
+                el.setAttribute('data-color', hex);
+                el.title = hex;
+                row.insertBefore(el, refElement);
+                if (fire) {
+                    this.onPaletteColorAdd(hex);
+                }
+            };
+            const removeColorToPalette = (element, fire) => {
+                // se element è nullo elimino tutti i colori
+                if (element) {
+                    row.removeChild(element);
+                    if (fire) {
+                        this.onPaletteColorRemove(element.getAttribute('data-color'));
+                    }
+                } else {
+                    row.querySelectorAll('.a-color-picker-palette-color[data-color]').forEach(el => {
+                        row.removeChild(el);
+                    });
+                    if (fire) {
+                        this.onPaletteColorRemove();
+                    }
+                }
+            };
+            // solo i colori validi vengono aggiunti alla palette
+            palette
                 .map(p => p && parseColorToRgb(p))
                 .filter(c => !!c)
-                .forEach((c) => {
-                    const el = document.createElement('div');
-                    const hex = rgbToHex(...c);
-                    el.className = 'a-color-picker-palette-color';
-                    el.style.backgroundColor = hex;
-                    el.setAttribute('data-color', hex);
-                    el.title = hex;
-                    row.appendChild(el);
-                });
+                .forEach(c => addColorToPalette(rgbToHex(...c)));
+            // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
+            if (this.options.paletteEditable) {
+                const el = document.createElement('div');
+                el.className = 'a-color-picker-palette-color a-color-picker-palette-add';
+                el.innerHTML = '+';
+                row.appendChild(el);
+            }
             row.addEventListener('click', (e) => {
-                if (e.target.className === 'a-color-picker-palette-color') {
-                    // visto che il colore letto da backgroundColor risulta nel formato rgb()
-                    // devo usare il valore hex originale
-                    this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
+                if (/a\-color\-picker\-palette\-add/.test(e.target.className)) {
+                    if (e.shiftKey) {
+                        // TODO: rimuovere tutti i colori (?)
+                        removeColorToPalette(null, true);
+                    } else {
+                        // aggiungo il colore e triggero l'evento 'oncoloradd'
+                        addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                    }
+                } else if (/a\-color\-picker\-palette\-color/.test(e.target.className)) {
+                    if (e.shiftKey) {
+                        // rimuovo il colore e triggero l'evento 'oncolorremove'
+                        removeColorToPalette(e.target, true);
+                    } else {
+                        // visto che il colore letto da backgroundColor risulta nel formato rgb()
+                        // devo usare il valore hex originale
+                        this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
+                    }
                 }
             });
         } else {
@@ -497,6 +547,14 @@ class ColorPicker {
         this.onchange && this.onchange();
     }
 
+    onPaletteColorAdd(color) {
+        this.oncoloradd && this.oncoloradd(color);
+    }
+
+    onPaletteColorRemove(color) {
+        this.oncolorremove && this.oncolorremove(color);
+    }
+
     updateInputHSL(h, s, l) {
         this.inputH.value = h;
         this.inputS.value = s;
@@ -528,6 +586,16 @@ class ColorPicker {
     }
 }
 
+function wrapEventCallback(ctrl, picker, eventName, cb) {
+    if (cb && typeof cb === 'function') {
+        picker['on' + eventName] = function() {
+            cb.call(null, ctrl, ...arguments);
+        };
+    } else {
+        picker['on' + eventName] = null;
+    }
+}
+
 /**
  * Crea il color picker.
  * Le opzioni sono:
@@ -546,7 +614,7 @@ class ColorPicker {
  */
 function createPicker(options) {
     const picker = new ColorPicker(options);
-    let cbOnChange;
+    const cbEvents = {};
     return {
         get element() {
             return picker.element;
@@ -597,19 +665,30 @@ function createPicker(options) {
         },
 
         get onchange() {
-            return cbOnChange;
+            return cbEvents['change'];
         },
 
         set onchange(cb) {
-            if (cb && typeof cb === 'function') {
-                cbOnChange = cb;
-                picker.onchange = () => {
-                    cb(this);
-                };
-            } else {
-                cbOnChange = null;
-                picker.onchange = null;
-            }
+            wrapEventCallback(this, picker, 'change', cb);
+            cbEvents['change'] = cb;
+        },
+
+        get oncoloradd() {
+            return cbEvents['coloradd'];
+        },
+
+        set oncoloradd(cb) {
+            wrapEventCallback(this, picker, 'coloradd', cb);
+            cbEvents['coloradd'] = cb;
+        },
+
+        get oncolorremove() {
+            return cbEvents['colorremove'];
+        },
+
+        set oncolorremove(cb) {
+            wrapEventCallback(this, picker, 'colorremove', cb);
+            cbEvents['colorremove'] = cb;
         }
 
     }
@@ -618,12 +697,12 @@ function createPicker(options) {
 export {
     createPicker,
     parseColorToRgb,
-    rgbToHex, 
-    hslToRgb, 
-    rgbToHsl, 
-    rgbToInt, 
+    rgbToHex,
+    hslToRgb,
+    rgbToHsl,
+    rgbToInt,
     intToRgb,
-    COLOR_NAMES, 
-    PALETTE_MATERIAL_500, 
+    COLOR_NAMES,
+    PALETTE_MATERIAL_500,
     PALETTE_MATERIAL_CHROME
 }

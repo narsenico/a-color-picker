@@ -9,6 +9,11 @@ function limit(value, min, max) {
     return isNaN(value) ? min : value < min ? min : value > max ? max : value;
 }
 
+function ensureArray(arrayLike) {
+    if (!arrayLike) return [];
+    return Array.from(arrayLike);
+}
+
 /**
  * Converte il colore da [r,g,b] al formato RGB HEX.
  *
@@ -118,5 +123,7 @@ export {
     hslToRgb,
     rgbToHsl,
     rgbToInt,
-    intToRgb
+    intToRgb,
+    limit,
+    ensureArray
 }
