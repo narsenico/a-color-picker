@@ -24,6 +24,15 @@
     border-top: solid 1px #eee;
 }
 
+.a-color-picker-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.a-color-picker-cell {
+    flex: 1 1 auto;
+}
+
 .a-color-picker-stack {
     position: relative;
     overflow: hidden;
@@ -41,7 +50,8 @@
     border: solid 1px #074462;
 }
 
-.a-color-picker-h {
+.a-color-picker-h,
+.a-color-picker-a {
     border-radius: 2px;
 }
 
@@ -49,9 +59,12 @@
     box-sizing: border-box;
     width: 40px;
     height: 40px;
-    border-radius: 50px;
-    border: solid 1px #eee;
     user-select: none;
+}
+
+.a-color-picker-circle {
+    border-radius: 50px;
+    border: solid 1px #eee;    
 }
 
 .a-color-picker-hsl,
@@ -76,14 +89,15 @@
     flex: 1 1 auto;
 }
 
-.a-color-picker-sl {
+.a-color-picker-transparent {
     background-image: linear-gradient(to right, #f2eeee 1px, transparent 1px), linear-gradient(to bottom, #f2eeee 1px, transparent 1px);
-    background-size: 8px;
+    background-size: 8px 8px;
 }
 
-.a-color-picker.hide-hsl .a-color-picker-hsl,
-.a-color-picker.hide-rgb .a-color-picker-rgb,
-.a-color-picker.hide-single-input .a-color-picker-single-input {
+.a-color-picker.hide-hsl [show-on-hsl],
+.a-color-picker.hide-rgb [show-on-rgb],
+.a-color-picker.hide-single-input [show-on-single-input],
+.a-color-picker.hide-alpha [show-on-alpha] {
     display: none;
 }
 

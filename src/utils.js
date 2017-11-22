@@ -9,6 +9,10 @@ function limit(value, min, max) {
     return isNaN(value) ? min : value < min ? min : value > max ? max : value;
 }
 
+function nvl(value, def) {
+    return value === null || value === undefined ? def : value;
+}
+
 function ensureArray(arrayLike) {
     if (!arrayLike) return [];
     return Array.from(arrayLike);
@@ -125,5 +129,6 @@ export {
     rgbToInt,
     intToRgb,
     limit,
-    ensureArray
+    ensureArray,
+    nvl
 }

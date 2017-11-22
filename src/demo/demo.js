@@ -11,11 +11,12 @@ const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
         showRGB: true,
         showHSL: true,
         showHEX: true,
+        showAlpha: true,
         palette: /no-palette/.test(el.className) ? null : AColorPicker.PALETTE_MATERIAL_CHROME,
         paletteEditable: true
     });
     picker.onchange = (picker) => {
-        // console.log(index, 'changed', picker.color);
+        console.log(index, 'changed', picker.color);
         body.style.backgroundColor = picker.color;
     };
     picker.oncoloradd = (picker, color) => {

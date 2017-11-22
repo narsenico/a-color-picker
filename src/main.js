@@ -9,7 +9,8 @@ import {
     rgbToInt,
     intToRgb,
     limit,
-    ensureArray
+    ensureArray,
+    nvl
 } from './utils.js';
 
 'use strict';
@@ -22,6 +23,7 @@ const DEFAULT = {
     showHSL: true,
     showRGB: true,
     showHEX: true,
+    showAlpha: true,
     color: '#ff0000',
     palette: null,
     paletteEditable: false
@@ -29,6 +31,7 @@ const DEFAULT = {
 
 const SL_BAR_SIZE = [200, 150],
     HUE_BAR_SIZE = [150, 16],
+    ALPHA_BAR_SIZE = HUE_BAR_SIZE,
     HUE = 'H',
     SATURATION = 'S',
     LUMINANCE = 'L',
@@ -39,20 +42,31 @@ const SL_BAR_SIZE = [200, 150],
     RGBHEX = 'RGBHEX',
     COLOR = 'COLOR',
     RGB_USER = 'RGB_USER',
-    HSL_USER = 'HSL_USER';
+    HSL_USER = 'HSL_USER',
+    ALPHA = 'ALPHA';
 
 const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
-                            <canvas class="a-color-picker-sl"></canvas>
+                            <canvas class="a-color-picker-sl a-color-picker-transparent"></canvas>
                             <div class="a-color-picker-dot"></div>
                         </div>
                         <div class="a-color-picker-row">
-                            <div class="a-color-picker-preview"><input class="a-color-picker-clipbaord" type="text"></div>
-                            <div class="a-color-picker-stack">
-                                <canvas class="a-color-picker-h"></canvas>
-                                <div class="a-color-picker-dot"></div>
+                            <div class="a-color-picker-stack a-color-picker-transparent a-color-picker-circle">
+                                <div class="a-color-picker-preview">
+                                    <input class="a-color-picker-clipbaord" type="text">
+                                </div>
+                            </div>
+                            <div class="a-color-picker-column">
+                                <div class="a-color-picker-cell a-color-picker-stack">
+                                    <canvas class="a-color-picker-h"></canvas>
+                                    <div class="a-color-picker-dot"></div>
+                                </div>
+                                <div class="a-color-picker-cell a-color-picker-stack" show-on-alpha>
+                                    <canvas class="a-color-picker-a a-color-picker-transparent"></canvas>
+                                    <div class="a-color-picker-dot"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="a-color-picker-row a-color-picker-hsl">
+                        <div class="a-color-picker-row a-color-picker-hsl" show-on-hsl>
                             <label>H</label>
                             <input name="H" type="number" maxlength="3" min="0" max="360" value="0">
                             <label>S</label>
@@ -60,7 +74,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                             <label>L</label>
                             <input name="L" type="number" maxlength="3" min="0" max="100" value="0">
                         </div>
-                        <div class="a-color-picker-row a-color-picker-rgb">
+                        <div class="a-color-picker-row a-color-picker-rgb" show-on-rgb>
                             <label>R</label>
                             <input name="R" type="number" maxlength="3" min="0" max="255" value="0">
                             <label>G</label>
@@ -68,7 +82,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                             <label>B</label>
                             <input name="B" type="number" maxlength="3" min="0" max="255" value="0">
                         </div>
-                        <div class="a-color-picker-row a-color-picker-single-input">
+                        <div class="a-color-picker-row a-color-picker-single-input" show-on-single-input>
                             <label>HEX</label>
                             <input name="RGBHEX" type="text" select-on-focus>
                         </div>
@@ -161,6 +175,22 @@ function cssColorToRgb(color) {
     return undefined;
 }
 
+function cssRgbToRgb(rgb) {
+    if (rgb) {
+        const [m, r, g, b] = /^rgb\((\d+),(\d+),(\d+)\)/i.exec(rgb) || [];
+        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)] : undefined;
+    }
+    return undefined;
+}
+
+function cssRgbaToRgba(rgba) {
+    if (rgba) {
+        const [m, r, g, b, a] = /^rgba\((\d+),(\d+),(\d+),(\d*(.\d+)?)\)/i.exec(rgba) || [];
+        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(a, 0, 1)] : undefined;
+    }
+    return undefined;
+}
+
 /**
  * Converte il colore in ingresso nel formato [r,g,b].
  * Color può assumere questi valori:
@@ -176,12 +206,25 @@ function parseColorToRgb(color) {
         color = [limit(color[0], 0, 255), limit(color[1], 0, 255), limit(color[2], 0, 255)];
         return color;
     } else {
-        const parsed = cssColorToRgb(color);
-        if (parsed) {
-            return parsed;
-        } else {
-            // TODO: considerare il formato rgb(), rgba(), hsl() e hsla()
+        return cssColorToRgb(color) || cssRgbToRgb(color);
+    }
+}
+
+function parseColorToRgba(color) {
+    if (Array.isArray(color)) {
+        color = [
+            limit(color[0], 0, 255),
+            limit(color[1], 0, 255),
+            limit(color[2], 0, 255),
+            limit(nvl(color[3], 1), 0, 1)
+        ];
+        return color;
+    } else {
+        const parsed = cssColorToRgb(color) || cssRgbToRgb(color) || cssRgbaToRgba(color);
+        if (parsed && parsed.length === 3) {
+            parsed.push(1);
         }
+        return parsed;
     }
 }
 
@@ -204,6 +247,7 @@ class ColorPicker {
             this.R = 0;
             this.G = 0;
             this.B = 0;
+            this.A = 1;
 
             // creo gli elementi HTML e li aggiungo al container
             this.element = document.createElement('div');
@@ -214,6 +258,8 @@ class ColorPicker {
             if (!this.options.showHSL) this.element.className += ' hide-hsl';
             // se falsy viene nascosto .a-color-picker-single-input (css hex)
             if (!this.options.showHEX) this.element.className += ' hide-single-input';
+            // se falsy viene nascosto .a-color-picker-a
+            if (!this.options.showAlpha) this.element.className += ' hide-alpha';
             this.element.innerHTML = HTML_BOX;
             container.appendChild(this.element);
             // preparo il canvas con tutto lo spettro del HUE (da 0 a 360)
@@ -241,6 +287,9 @@ class ColorPicker {
             this.setupInput(this.inputRGBHEX = this.element.querySelector('input[name=RGBHEX]'));
             // preparo la palette con i colori predefiniti
             this.setPalette(this.element.querySelector('.a-color-picker-palette'));
+            // preparo in canvas per l'opacità
+            this.setupAlphaCanvas(this.element.querySelector('.a-color-picker-a'));
+            this.alphaPointer = this.element.querySelector('.a-color-picker-a+.a-color-picker-dot');
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
@@ -316,6 +365,40 @@ class ColorPicker {
         });
     }
 
+    setupAlphaCanvas(canvas) {
+        canvas.width = ALPHA_BAR_SIZE[0];
+        canvas.height = ALPHA_BAR_SIZE[1];
+        // disegno sul canvas con un gradiente che va dalla piena trasparenza al pieno opaco
+        const ctx = canvas.getContext('2d'),
+            gradient = ctx.createLinearGradient(0, 0, canvas.width - 1, 0);
+        gradient.addColorStop(0, `hsla(0, 0%, 50%, 0)`);
+        gradient.addColorStop(1, `hsla(0, 0%, 50%, 1)`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, ALPHA_BAR_SIZE[0], ALPHA_BAR_SIZE[1]);
+        // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
+        // una volta che il puntatore è premuto sul canvas (mousedown) 
+        // intercetto le variazioni nella posizione del puntatore (mousemove)
+        // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
+        // una volta sollevato (mouseup) elimino i listener
+        const onMouseMove = (e) => {
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, ALPHA_BAR_SIZE[0]),
+                alpha = +(x / ALPHA_BAR_SIZE[0]).toFixed(2);
+            this.alphaPointer.style.left = (x - 7) + 'px';
+            this.onValueChanged(ALPHA, alpha);
+        };
+        const onMouseUp = () => {
+            // rimuovo i listener, verranno riattivati al prossimo mousedown
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+        // mouse down sul canvas: intercetto il movimento, smetto appena il mouse viene sollevato
+        canvas.addEventListener('mousedown', (e) => {
+            onMouseMove(e);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    }
+
     setupInput(input) {
         const min = +input.min,
             max = +input.max,
@@ -371,7 +454,7 @@ class ColorPicker {
         if (this.options.paletteEditable || palette.length > 0) {
             const addColorToPalette = (hex, refElement, fire) => {
                 // se il colore è già presente, non creo un nuovo <div> ma sposto quello esistente in coda
-                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + hex + '"]') ||                    
+                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + hex + '"]') ||
                     document.createElement('div');
                 el.className = 'a-color-picker-palette-color';
                 el.style.backgroundColor = hex;
@@ -528,7 +611,7 @@ class ColorPicker {
                 this.updateInputRGB(this.R, this.G, this.B);
                 break;
             case COLOR:
-                [this.R, this.G, this.B] = parseColorToRgb(value) || [0, 0, 0];
+                [this.R, this.G, this.B, this.A] = parseColorToRgba(value) || [0, 0, 0, 1];
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
@@ -536,14 +619,21 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
+                this.updatePointerA(this.A);
+                break;
+            case ALPHA:
+                this.A = value;
                 break;
         }
-        // this.onColorChanged(this.H, this.S, this.L);
-        this.onColorChanged(this.R, this.G, this.B);
+        this.onColorChanged(this.R, this.G, this.B, this.A);
     }
 
-    onColorChanged(r, g, b) {
-        this.preview.style.backgroundColor = `rgb(${r},${g},${b})`;
+    onColorChanged(r, g, b, a) {
+        if (a === 1) {
+            this.preview.style.backgroundColor = `rgb(${r},${g},${b})`;
+        } else {
+            this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
+        }
         this.onchange && this.onchange();
     }
 
@@ -583,6 +673,11 @@ class ColorPicker {
             this.slPointer.style.left = (x - 7) + 'px';
             this.slPointer.style.top = (y - 7) + 'px';
         }
+    }
+
+    updatePointerA(a) {
+        const x = ALPHA_BAR_SIZE[0] * a;
+        this.alphaPointer.style.left = (x - 7) + 'px';
     }
 }
 
@@ -642,13 +737,25 @@ function createPicker(options) {
             return rgbToHex(picker.R, picker.G, picker.B);
         },
 
+        get rgba() {
+            return [picker.R, picker.G, picker.B, picker.A];
+        },
+
+        get hsla() {
+            return [picker.H, picker.S, picker.L, picker.A];
+        },
+
         /**
          * Ritorna il colore corrente nel formato RGB HEX.
          *
          * @return     {string}  colorre corrente (es: #ffdd00)
          */
         get color() {
-            return this.rgbhex;
+            if (picker.A === 1) {
+                return this.rgbhex;
+            } else {
+                return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
+            }
         },
 
         /**
@@ -697,6 +804,7 @@ function createPicker(options) {
 export {
     createPicker,
     parseColorToRgb,
+    parseColorToRgba,
     rgbToHex,
     hslToRgb,
     rgbToHsl,
