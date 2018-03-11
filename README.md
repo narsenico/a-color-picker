@@ -121,6 +121,7 @@ const picker = AColorPicker.createPicker({
 });
 ```
 With editable palette.
+
 ![a-color-picker palette editable screenshot](/screenshot_palette_editable.png)
 ```js
 const picker = AColorPicker.createPicker({
