@@ -13,8 +13,6 @@ import {
     nvl
 } from './utils.js';
 
-'use strict';
-
 const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
 
@@ -23,7 +21,7 @@ const DEFAULT = {
     showHSL: true,
     showRGB: true,
     showHEX: true,
-    showAlpha: true,
+    showAlpha: false,
     color: '#ff0000',
     palette: null,
     paletteEditable: false
@@ -41,8 +39,8 @@ const SL_BAR_SIZE = [200, 150],
     BLUE = 'B',
     RGBHEX = 'RGBHEX',
     COLOR = 'COLOR',
-    RGB_USER = 'RGB_USER',
-    HSL_USER = 'HSL_USER',
+    RGBA_USER = 'RGBA_USER',
+    HSLA_USER = 'HSLA_USER',
     ALPHA = 'ALPHA';
 
 const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
@@ -97,8 +95,8 @@ function parseElemnt(element, defaultElement, fallToDefault) {
         return element[0];
     } else if (typeof element == 'string') {
         return document.querySelector(element);
-        // } else if ($ && element.jquery) {
-        //     return element.get(0);
+    } else if (element.jquery) {
+        return element.get(0); //TODO: da testare
     } else if (fallToDefault) {
         return defaultElement;
     } else {
@@ -494,7 +492,7 @@ class ColorPicker {
                 row.appendChild(el);
             }
             row.addEventListener('click', (e) => {
-                if (/a\-color\-picker\-palette\-add/.test(e.target.className)) {
+                if (/a-color-picker-palette-add/.test(e.target.className)) {
                     if (e.shiftKey) {
                         // TODO: rimuovere tutti i colori (?)
                         removeColorToPalette(null, true);
@@ -502,7 +500,7 @@ class ColorPicker {
                         // aggiungo il colore e triggero l'evento 'oncoloradd'
                         addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
                     }
-                } else if (/a\-color\-picker\-palette\-color/.test(e.target.className)) {
+                } else if (/a-color-picker-palette-color/.test(e.target.className)) {
                     if (e.shiftKey) {
                         // rimuovo il colore e triggero l'evento 'oncolorremove'
                         removeColorToPalette(e.target, true);
@@ -581,8 +579,8 @@ class ColorPicker {
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
                 break;
-            case RGB_USER:
-                [this.R, this.G, this.B] = value;
+            case RGBA_USER:
+                [this.R, this.G, this.B, this.A] = value;
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
@@ -590,9 +588,10 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
+                this.updatePointerA(this.A);
                 break;
-            case HSL_USER:
-                [this.H, this.S, this.L] = value;
+            case HSLA_USER:
+                [this.H, this.S, this.L, this.A] = value;
                 [this.R, this.G, this.B] = hslToRgb(this.H, this.S, this.L);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
@@ -600,6 +599,7 @@ class ColorPicker {
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
                 this.updateInputRGBHEX(this.R, this.G, this.B);
+                this.updatePointerA(this.A);
                 break;
             case RGBHEX:
                 [this.R, this.G, this.B] = cssColorToRgb(value) || [this.R, this.G, this.B];
@@ -721,7 +721,7 @@ function createPicker(options) {
 
         set rgb([r, g, b]) {
             [r, g, b] = [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)];
-            picker.onValueChanged(RGB_USER, [r, g, b]);
+            picker.onValueChanged(RGBA_USER, [r, g, b, 1]);
         },
 
         get hsl() {
@@ -730,7 +730,7 @@ function createPicker(options) {
 
         set hsl([h, s, l]) {
             [h, s, l] = [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100)];
-            picker.onValueChanged(HSL_USER, [h, s, l]);
+            picker.onValueChanged(HSLA_USER, [h, s, l, 1]);
         },
 
         get rgbhex() {
@@ -741,8 +741,18 @@ function createPicker(options) {
             return [picker.R, picker.G, picker.B, picker.A];
         },
 
+        set rgba([r, g, b, a]) {
+            [r, g, b, a] = [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(a, 0, 1)];
+            picker.onValueChanged(RGBA_USER, [r, g, b, a]);
+        },
+
         get hsla() {
             return [picker.H, picker.S, picker.L, picker.A];
+        },
+
+        set hsla([h, s, l, a]) {
+            [h, s, l, a] = [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100), limit(a, 0, 1)];
+            picker.onValueChanged(HSLA_USER, [h, s, l, a]);
         },
 
         /**
@@ -798,7 +808,7 @@ function createPicker(options) {
             cbEvents['colorremove'] = cb;
         }
 
-    }
+    };
 }
 
 export {
@@ -813,4 +823,4 @@ export {
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
     PALETTE_MATERIAL_CHROME
-}
+};

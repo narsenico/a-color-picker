@@ -41,7 +41,9 @@ Options:
 - `showRGB`: (*Boolean*) If falsy hide the RGB inputs. Default **true**.
 - `showHEX`: (*Boolean*) If falsy hide the RGB HEX inputs. Default **true**.
 - `color`: (*Boolean*) Initial color. Default **#ff0000**.
-- **_NEW!_** `palette`: (*Array*) Array of predefined colors. Default **null**.
+- `palette`: (*Array*) Array of predefined colors. Default **null**.
+- **_NEW!_** `paletteEditable`: (*Boolean*) If truly make the palette editable. Default **false**.
+- **_NEW!_** `showAlpha`: (*Boolean*) If truly show control to change opacity. Default **false**.
 
 ### Listen for color change
 Set onchange property with a handler function.
@@ -62,10 +64,17 @@ const picker = AColorPicker.createPicker({
 });
 // rgb array
 picker.rgb; // return [0, 128, 0]
+// rgba array
+picker.rgba; // return [0, 128, 0, 1]
 // hsl array
 picker.hsl; // return [120, 100 ,25]
+// hsla array
+picker.hsla; // return [120, 100 ,25, 1]
 // rgb hex format
 picker.color; // return '#008000'
+// with alpha < 1
+picker.color; // return 'rgba(0, 0, 139, 0.37)'
+
 ```
 
 ### Set current color
@@ -77,17 +86,23 @@ const picker = AColorPicker.createPicker({
 });
 // rgb array
 picker.rgb = [0, 128, 0];
+// rgba array
+picker.rgba = [0, 128, 0, 1];
 // hsl array
 picker.hsl = [120, 100 ,25];
+// hsla array
+picker.hsla = [120, 100 ,25, 1];
 // rgb hex format
 picker.color = '#008000';
 picker.color = '#fd0';
+// rgba format
+picker.color = 'rgba(0, 0, 139, 0.37)';
 // color name
 picker.color = 'green';
 ```
 
 ### Set up a palette of predefined colors
-![a-color-picker screenshot](/screenshot_palette.png)
+![a-color-picker palette screenshot](/screenshot_palette.png)
 
 Using a default palette.
 ```js
@@ -104,6 +119,25 @@ const picker = AColorPicker.createPicker({
     // color format: name, css hex, rgb array
     palette: ['lightgreen', '#fafafa', '#fdo', [255, 23, 46]]
 });
+```
+With editable palette.
+![a-color-picker palette editable screenshot](/screenshot_palette_editable.png)
+```js
+const picker = AColorPicker.createPicker({
+    attachTo: 'div.container',
+    // color format: name, css hex, rgb array
+    palette: ['lightgreen', '#fafafa', '#fdo', [255, 23, 46]],
+    // click on + icon to add current color to palette
+    // shift+click on color to remove it from palette
+    // shift+click on + icon to remove all colors from palette
+    paletteEditable: true
+});
+picker.oncoloradd = (picker, color) => {
+    // fired when color is added on palette
+}
+picker.oncolorremove = (picker, color) => {
+    // fired when color is removed from palette
+}
 ```
 
 ## Utilities

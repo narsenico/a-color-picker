@@ -45,9 +45,19 @@ document.querySelector('#btnGetColor').addEventListener('click', () => {
                 p.rgb = this.value.split(/[\s,;]/);
             });
             break;
+        case 'rgba':
+            pickers.forEach((p) => {
+                p.rgba = this.value.split(/[\s,;]/);
+            });
+            break;
         case 'hsl':
             pickers.forEach((p) => {
                 p.hsl = this.value.split(/[\s,;]/);
+            });
+            break;
+        case 'hsla':
+            pickers.forEach((p) => {
+                p.hsla = this.value.split(/[\s,;]/);
             });
             break;
         case 'color':

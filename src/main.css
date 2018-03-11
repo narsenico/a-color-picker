@@ -5,9 +5,12 @@
     display: inline-flex;
     flex-direction: column;
     user-select: none;
-    font-family: arial;
-    font-size: 10px;
     width: 208px;
+    font: 400 10px Helvetica,Arial,sans-serif;
+}
+
+.a-color-picker input {
+    box-sizing: border-box;
 }
 
 .a-color-picker-row {
@@ -112,6 +115,7 @@
     flex-flow: wrap;
     flex-direction: row;
     justify-content: flex-start;
+    padding: 2px 0px;
 }
 
 .a-color-picker-palette-color {
