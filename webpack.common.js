@@ -4,8 +4,8 @@ const path = require('path'),
 
 module.exports = {
     entry: {
+        // utils: './src/utils.js',
         acolorpicker: './src/main.js',
-        utils: './src/utils.js',
         demo: './src/demo/demo.js'
     },
     output: {

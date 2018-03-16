@@ -1,6 +1,7 @@
 import './demo.css';
 const AColorPicker = require('../main.js');
-const { PALETTE_MATERIAL_500, PALETTE_MATERIAL_CHROME } = require('../utils.js');
+
+console.log(AColorPicker);
 
 const body = document.querySelector('body');
 const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
@@ -10,12 +11,19 @@ const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
         showRGB: true,
         showHSL: true,
         showHEX: true,
-        palette: ['lightgreen', '#fafafa', '#fdo', [255, 23, 46]]
-        //palette: PALETTE_MATERIAL_CHROME
+        showAlpha: true,
+        palette: /no-palette/.test(el.className) ? null : AColorPicker.PALETTE_MATERIAL_CHROME,
+        paletteEditable: true
     });
-    picker.onchange = () => {
-        // console.log(index, 'changed', picker.color);
+    picker.onchange = (picker) => {
+        console.log(index, 'changed', picker.color);
         body.style.backgroundColor = picker.color;
+    };
+    picker.oncoloradd = (picker, color) => {
+        console.log(index, 'coloradd', color);
+    };
+    picker.oncolorremove = (picker, color) => {
+        console.log(index, 'colorremove', color);
     };
     return (window['p' + index] = picker);
 });
@@ -37,9 +45,19 @@ document.querySelector('#btnGetColor').addEventListener('click', () => {
                 p.rgb = this.value.split(/[\s,;]/);
             });
             break;
+        case 'rgba':
+            pickers.forEach((p) => {
+                p.rgba = this.value.split(/[\s,;]/);
+            });
+            break;
         case 'hsl':
             pickers.forEach((p) => {
                 p.hsl = this.value.split(/[\s,;]/);
+            });
+            break;
+        case 'hsla':
+            pickers.forEach((p) => {
+                p.hsla = this.value.split(/[\s,;]/);
             });
             break;
         case 'color':
