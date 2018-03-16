@@ -3,7 +3,8 @@ A color picker for web app
 
 [![npm version](https://badge.fury.io/js/a-color-picker.svg)](https://badge.fury.io/js/a-color-picker) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![live demo](https://img.shields.io/badge/demo-codepen-yellow.svg)](https://codepen.io/narsenico/pen/xPxNeE)
 
-![a-color-picker screenshot](/screenshot.png)
+![a-color-picker screenshot](/screenshots/screenshot.png)
+![a-color-picker screenshot](/screenshots/screenshot_alpha.png)
 
 ## Usage
 1. Include `acolorpicker.js`
@@ -102,7 +103,7 @@ picker.color = 'green';
 ```
 
 ### Set up a palette of predefined colors
-![a-color-picker palette screenshot](/screenshot_palette.png)
+![a-color-picker palette screenshot](/screenshots/screenshot_palette.png)
 
 Using a default palette.
 ```js
@@ -122,7 +123,7 @@ const picker = AColorPicker.createPicker({
 ```
 With editable palette.
 
-![a-color-picker palette editable screenshot](/screenshot_palette_editable.png)
+![a-color-picker palette editable screenshot](/screenshots/screenshot_palette_editable.png)
 ```js
 const picker = AColorPicker.createPicker({
     attachTo: 'div.container',
