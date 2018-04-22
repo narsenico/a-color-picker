@@ -67,3 +67,4 @@ document.querySelector('#btnGetColor').addEventListener('click', () => {
             break;
     }
 }));
+window.$pickers = pickers;

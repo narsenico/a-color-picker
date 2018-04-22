@@ -43,8 +43,8 @@ Options:
 - `showHEX`: (*Boolean*) If falsy hide the RGB HEX inputs. Default **true**.
 - `color`: (*Boolean*) Initial color. Default **#ff0000**.
 - `palette`: (*Array*) Array of predefined colors. Default **null**.
-- **_NEW!_** `paletteEditable`: (*Boolean*) If truly make the palette editable. Default **false**.
-- **_NEW!_** `showAlpha`: (*Boolean*) If truly show control to change opacity. Default **false**.
+- `paletteEditable`: (*Boolean*) If truly make the palette editable. Default **false**.
+- `showAlpha`: (*Boolean*) If truly show control to change opacity. Default **false**.
 
 ### Listen for color change
 Set onchange property with a handler function.
@@ -140,6 +140,8 @@ picker.oncoloradd = (picker, color) => {
 picker.oncolorremove = (picker, color) => {
     // fired when color is removed from palette
 }
+// readonly property, return an array of hex colors
+picker.palette;
 ```
 
 ## Utilities

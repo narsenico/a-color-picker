@@ -158,7 +158,7 @@ function canvasHelper(canvas) {
             // console.timeEnd('findColor');
             return coord;
         }
-    }
+    };
 }
 
 function cssColorToRgb(color) {
@@ -246,6 +246,9 @@ class ColorPicker {
             this.G = 0;
             this.B = 0;
             this.A = 1;
+            // andrà a contenere la palette di colori effettivamente usata
+            // compresi i colori aggiunti o rimossi dall'utente, non sarà modificabile dirretamente dall'utente
+            this.palette = { /*<color>: boolean*/ };
 
             // creo gli elementi HTML e li aggiungo al container
             this.element = document.createElement('div');
@@ -438,7 +441,7 @@ class ColorPicker {
     setupClipboard(input) {
         // l'input ricopre completamente la preview ma è totalmente trasparente
         input.title = 'click to copy';
-        input.addEventListener('click', e => {
+        input.addEventListener('click', () => {
             // non uso direttamente inputRGBHEX perchè potrebbe contenere un colore non valido
             input.value = rgbToHex(this.R, this.G, this.B);
             input.select();
@@ -459,6 +462,7 @@ class ColorPicker {
                 el.setAttribute('data-color', hex);
                 el.title = hex;
                 row.insertBefore(el, refElement);
+                this.palette[hex] = true;
                 if (fire) {
                     this.onPaletteColorAdd(hex);
                 }
@@ -467,12 +471,16 @@ class ColorPicker {
                 // se element è nullo elimino tutti i colori
                 if (element) {
                     row.removeChild(element);
+                    this.palette[element.getAttribute('data-color')] = false;
                     if (fire) {
                         this.onPaletteColorRemove(element.getAttribute('data-color'));
                     }
                 } else {
                     row.querySelectorAll('.a-color-picker-palette-color[data-color]').forEach(el => {
                         row.removeChild(el);
+                    });
+                    Object.keys(this.palette).forEach(k => {
+                        this.palette[k] = false;
                     });
                     if (fire) {
                         this.onPaletteColorRemove();
@@ -494,7 +502,7 @@ class ColorPicker {
             row.addEventListener('click', (e) => {
                 if (/a-color-picker-palette-add/.test(e.target.className)) {
                     if (e.shiftKey) {
-                        // TODO: rimuovere tutti i colori (?)
+                        // rimuove tutti i colori
                         removeColorToPalette(null, true);
                     } else {
                         // aggiungo il colore e triggero l'evento 'oncoloradd'
@@ -806,8 +814,16 @@ function createPicker(options) {
         set oncolorremove(cb) {
             wrapEventCallback(this, picker, 'colorremove', cb);
             cbEvents['colorremove'] = cb;
-        }
+        },
 
+        /**
+         * Ritorna la palette dei colori.
+         *
+         * @return     {Array}  array di colori in formato hex
+         */
+        get palette() {
+            return Object.keys(picker.palette).filter(k => picker.palette[k]);
+        }
     };
 }
 
