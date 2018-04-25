@@ -6,7 +6,9 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "build:dev": "webpack --display-used-exports --display-reasons --config webpack.dev.js",
-    "start": "webpack-dev-server --open --open-page demo.html --port 3000 --config webpack.dev.js"
+    "build:docs": "webpack --config webpack.docs.js",
+    "start": "webpack-dev-server --open --open-page demo.html --port 3000 --config webpack.dev.js",
+    "start:docs": "webpack-dev-server --open --open-page index.html --port 3000 --config webpack.docs.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+	<title>a-color-picker docs</title>
+</head>
+
+<body>
+	<div class="title">
+		<h1>a-color-picker</h1>
+		<p>A color picker for web app</p>
+	</div>
+	<div class="badges">
+		<a href="https://badge.fury.io/js/a-color-picker">
+			<img src="https://badge.fury.io/js/a-color-picker.svg" alt="npm version" height="18">
+		</a>
+		<a href="https://codepen.io/narsenico/pen/xPxNeE">
+			<img src="https://img.shields.io/badge/demo-codepen-0ebeff.svg" alt="codepen" height="18">
+		</a>
+		<iframe src="https://ghbtns.com/github-btn.html?user=narsenico&repo=a-color-picker&type=star&count=true" frameborder="0"
+		 scrolling="0" width="170px" height="20px"></iframe>
+	</div>
+	<div class="samples">
+		<section class="shadow">
+			<h3>Default</h3>
+			<div>
+				<div class="picker shadow"></div>
+			</div>
+			<pre class="code prettyprint lang-js">AColorPicker.createPicker(el);</pre>
+		</section>
+		<section class="shadow">
+			<h3>Small</h3>
+			<div>
+				<div class="picker shadow" acp-color="#DD6E42" acp-show-hsl="no"></div>
+			</div>
+			<pre class="code prettyprint lang-js">AColorPicker.createPicker({
+	attachTo: el,
+	color: '#DD6E42',
+	showHSL: false });</pre>
+		</section>
+		<section class="shadow">
+			<h3>With opacity</h3>
+			<div>
+				<div class="picker shadow" acp-color="rgba(121,69,169,.6)" acp-show-alpha></div>
+			</div>
+			<pre class="code prettyprint lang-js">AColorPicker.createPicker({
+    attachTo: el,
+    color: 'rgba(121, 69, 169, .6)',
+    showAlpha: true });</pre>
+		</section>
+		<section class="shadow">
+			<h3>With palette</h3>
+			<div>
+				<div class="picker shadow" acp-color="#03a9f4" acp-palette></div>
+			</div>
+			<pre class="code prettyprint lang-js">AColorPicker.createPicker({ 
+    attachTo: el,
+    color: '#03a9f4', 
+    palette: 
+        AColorPicker.PALETTE_MATERIAL_CHROME });</pre>
+		</section>
+		<section class="shadow">
+			<h3>With palette editable</h3>
+			<div>
+				<div class="picker shadow" acp-color="#03a9f4" acp-palette acp-palette-editable></div>
+			</div>
+			<pre class="code prettyprint lang-js">AColorPicker.createPicker({
+    attachTo: el,
+    color: '#03a9f4',
+    palette: 
+        AColorPicker.PALETTE_MATERIAL_CHROME,
+    paletteEditable: true });</pre>
+		</section>
+	</div>
+</body>
+
+</html>
