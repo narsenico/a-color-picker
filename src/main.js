@@ -12,6 +12,7 @@ import {
     ensureArray,
     nvl
 } from './utils.js';
+import { WSAVERNOTSUPPORTED } from 'constants';
 
 const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
@@ -226,6 +227,58 @@ function parseColorToRgba(color) {
     }
 }
 
+function parseAttrBoolean(value, ifNull, ifEmpty) {
+    if (value === null) {
+        return ifNull;
+    } else if (/^\s*$/.test(value)) {
+        return ifEmpty;
+    } else if (/true|yes|1/i.test(value)) {
+        return true;
+    } else if (/false|no|0/i.test(value)) {
+        return false;
+    } else {
+        return ifNull;
+    }
+}
+
+function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
+    // getAttribute() dovrebbe restituire null se l'attr non esiste, ma le vecchie specifiche prevedono il ritorno di una stringa vuota
+    //  quindi è meglio verificare l'esistenza dell'attr con hasAttribute()
+    if (element.hasAttribute(attrPrefix + 'show-hsl')) {
+        options.showHSL = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-hsl'), DEFAULT.showHSL, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-rgb')) {
+        options.showRGB = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-rgb'), DEFAULT.showRGB, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-hex')) {
+        options.showHEX = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-hex'), DEFAULT.showHEX, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-alpha')) {
+        options.showAlpha = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-alpha'), DEFAULT.showAlpha, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'palette-editable')) {
+        options.paletteEditable = parseAttrBoolean(element.getAttribute(attrPrefix + 'palette-editable'), DEFAULT.paletteEditable, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'palette')) {
+        const palette = element.getAttribute(attrPrefix + 'palette');
+        switch (palette) {
+            case 'PALETTE_MATERIAL_500':
+                options.palette = PALETTE_MATERIAL_500;
+                break;
+            case 'PALETTE_MATERIAL_CHROME':
+            case '':
+                options.palette = PALETTE_MATERIAL_CHROME;
+                break;            
+            default:
+                options.palette = palette.split(/[,;\|]/);
+                break;
+        }
+    }
+    if (element.hasAttribute(attrPrefix + 'color')) {
+        options.color = element.getAttribute(attrPrefix + 'color');
+    }
+}
+
 class ColorPicker {
     constructor(options) {
         let container = parseElemnt(options);
@@ -239,6 +292,10 @@ class ColorPicker {
         }
 
         if (container) {
+            // le opzioni possono essere specificate come attributi dell'elemento contenitore
+            // quelle presenti sostituiranno le corrispondenti passate con il parametro options
+            copyOptionsFromElement(this.options, container);
+
             this.H = 0;
             this.S = 0;
             this.L = 0;
@@ -691,7 +748,7 @@ class ColorPicker {
 
 function wrapEventCallback(ctrl, picker, eventName, cb) {
     if (cb && typeof cb === 'function') {
-        picker['on' + eventName] = function() {
+        picker['on' + eventName] = function () {
             cb.call(null, ctrl, ...arguments);
         };
     } else {
@@ -823,6 +880,18 @@ function createPicker(options) {
          */
         get palette() {
             return Object.keys(picker.palette).filter(k => picker.palette[k]);
+        },
+
+        on(eventName, cb) {
+            if (eventName) {
+                wrapEventCallback(this, picker, eventName, cb);
+                cbEvents[eventName] = cb;
+            }
+            return this;
+        },
+
+        off(eventName) {
+            return this.on(eventName, null);
         }
     };
 }

@@ -5,26 +5,18 @@ console.log(AColorPicker);
 
 const body = document.querySelector('body');
 const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
-    const picker = AColorPicker.createPicker({
-        attachTo: el,
-        color: 'darkblue',
-        showRGB: true,
-        showHSL: true,
-        showHEX: true,
-        showAlpha: true,
-        palette: /no-palette/.test(el.className) ? null : AColorPicker.PALETTE_MATERIAL_CHROME,
-        paletteEditable: true
-    });
-    picker.onchange = (picker) => {
-        console.log(index, 'changed', picker.color);
-        body.style.backgroundColor = picker.color;
-    };
-    picker.oncoloradd = (picker, color) => {
-        console.log(index, 'coloradd', color);
-    };
-    picker.oncolorremove = (picker, color) => {
-        console.log(index, 'colorremove', color);
-    };
+    const picker = AColorPicker.createPicker(el)
+        .on('change', (picker) => {
+            console.log(index, 'changed', picker.color);
+            body.style.backgroundColor = picker.color;
+        })
+        .on('coloradd', (picker, color) => {
+            console.log(index, 'coloradd', color);
+        })
+        .on('colorremove', (picker, color) => {
+            console.log(index, 'colorremove', color);
+        })
+        .on(null, () => {});
     return (window['p' + index] = picker);
 });
 
@@ -36,7 +28,7 @@ document.querySelector('#btnGetColor').addEventListener('click', () => {
     pickers.forEach(printColor);
 });
 
-[...document.querySelectorAll('.txt-color')].forEach(txt => txt.addEventListener('keyup', function(e) {
+[...document.querySelectorAll('.txt-color')].forEach(txt => txt.addEventListener('keyup', function (e) {
     if (e.which !== 13) return;
     const prop = this.getAttribute('data-prop');
     switch (prop) {
