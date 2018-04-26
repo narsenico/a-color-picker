@@ -8,6 +8,7 @@ import {
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    getLuminance,
     limit,
     ensureArray,
     nvl
@@ -87,7 +88,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                         </div>
                         <div class="a-color-picker-row a-color-picker-palette"></div>`;
 
-function parseElemnt(element, defaultElement, fallToDefault) {
+function parseElement(element, defaultElement, fallToDefault) {
     if (!element) {
         return defaultElement;
     } else if (element instanceof HTMLElement) {
@@ -100,6 +101,26 @@ function parseElemnt(element, defaultElement, fallToDefault) {
         return element.get(0); //TODO: da testare
     } else if (fallToDefault) {
         return defaultElement;
+    } else {
+        return null;
+    }
+}
+
+function parseElements(element, defaultElement, fallToDefault) {
+    if (!element) {
+        return [defaultElement];
+    } else if (Array.isArray(element)) {
+        return element;
+    } else if (element instanceof HTMLElement) {
+        return [element];
+    } else if (element instanceof NodeList) {
+        return [...element];
+    } else if (typeof element == 'string') {
+        return [...document.querySelectorAll(element)];
+    } else if (element.jquery) {
+        return element.get(); //TODO: da testare
+    } else if (fallToDefault) {
+        return [defaultElement];
     } else {
         return null;
     }
@@ -268,7 +289,7 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
             case 'PALETTE_MATERIAL_CHROME':
             case '':
                 options.palette = PALETTE_MATERIAL_CHROME;
-                break;            
+                break;
             default:
                 options.palette = palette.split(/[,;\|]/);
                 break;
@@ -280,17 +301,32 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
 }
 
 class ColorPicker {
-    constructor(options) {
-        let container = parseElemnt(options);
-        if (container) {
+    constructor(container, options) {
+        if (!options) {
+            if (container && container.attachTo) {
+                // se non trovo options e container è un {} con almeno la proprietà attachTo
+                //  lo considero il vero options
+                this.options = Object.assign({}, DEFAULT, container);
+                container = parseElement(this.options.attachTo);
+            } else {
+                // altrimenti uso le opzioni di default
+                this.options = Object.assign({}, DEFAULT);
+                container = parseElement(container);
+            }
+        } else {
+            container = parseElement(container);
+            this.options = Object.assign({}, DEFAULT, options);
+        }
+        
+/*         if (container) {
             // se viene passato al costrutto un elemento HTML uso le opzioni di default
             this.options = Object.assign({}, DEFAULT, { attachTo: options });
         } else {
             // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
             this.options = Object.assign({}, DEFAULT, options);
-            container = parseElemnt(this.options.attachTo);
+            container = parseElement(this.options.attachTo);
         }
-
+ */
         if (container) {
             // le opzioni possono essere specificate come attributi dell'elemento contenitore
             // quelle presenti sostituiranno le corrispondenti passate con il parametro options
@@ -765,15 +801,12 @@ function wrapEventCallback(ctrl, picker, eventName, cb) {
  * - showHEX: indica se mostrare i campi per la definizione del colore in formato RGB HEX (default true)
  * - color: colore iniziale (default '#ff0000')
  *
- * @param      {Object}          container Un elemento HTML che andrà a contenere il picker
- * 
- * oppure
- * 
- * @param      {Object}          options  Le opzioni di creazione
+ * @param      {Object}          element (opzionale) Un elemento HTML che andrà a contenere il picker
+ * @param      {Object}          options  (opzionale) Le opzioni di creazione
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
-function createPicker(options) {
-    const picker = new ColorPicker(options);
+function createPicker(element, options) {
+    const picker = new ColorPicker(element, options);
     const cbEvents = {};
     return {
         get element() {
@@ -896,8 +929,28 @@ function createPicker(options) {
     };
 }
 
+/**
+ * 
+ * @param {any} selector 
+ * @param {object} options 
+ * @return  un Array di controller così come restituito da createPicker()
+ */
+function from(selector, options) {
+    // TODO: gestire eventuali errori nella creazione del picker
+    const pickers = parseElements(selector).map(el => createPicker(el, options));
+    pickers.on = function (eventName, cb) {
+        pickers.forEach(picker => picker.on(eventName, cb));
+        return this;
+    };
+    pickers.off = function (eventName) {
+        return this.on(eventName, null);
+    };
+    return pickers;
+}
+
 export {
     createPicker,
+    from,
     parseColorToRgb,
     parseColorToRgba,
     rgbToHex,
@@ -905,6 +958,7 @@ export {
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    getLuminance,
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
     PALETTE_MATERIAL_CHROME

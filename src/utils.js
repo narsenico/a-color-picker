@@ -117,6 +117,24 @@ function intToRgb(int) {
     ];
 }
 
+/**
+ * Più il risultato tende a 1 e più è luminoso.
+ * 
+ * @param       {number} r red
+ * @param       {number} g green
+ * @param       {number} b blue
+ * @return      {number} la luminosità da 0 (scuro) a 1 (chiaro)
+ */
+function getLuminance(r, g, b) {
+    r = r / 255;
+    r = r < 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+    g = g / 255;
+    g = g < 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+    b = b / 255;
+    b = b < 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+    return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+}
+
 export {
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
@@ -126,6 +144,7 @@ export {
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    getLuminance,
     limit,
     ensureArray,
     nvl
