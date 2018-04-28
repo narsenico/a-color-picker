@@ -291,7 +291,7 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
                 options.palette = PALETTE_MATERIAL_CHROME;
                 break;
             default:
-                options.palette = palette.split(/[,;\|]/);
+                options.palette = palette.split(/[;\|]/);
                 break;
         }
     }
