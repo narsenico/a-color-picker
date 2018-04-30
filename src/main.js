@@ -628,8 +628,8 @@ class ColorPicker {
             palette
                 // provo prima a interpretare il clore come RGB e se non ci riesco in HSL (a sua volta convertito in RGB)
                 .map(p => p &&
-                        ((pp = parseColorToRgb(p)) ||
-                            ((pp = parseColorToHsl(p)) && (pp = hslToRgb(...pp)))))
+                    ((pp = parseColorToRgb(p)) ||
+                        ((pp = parseColorToHsl(p)) && (pp = hslToRgb(...pp)))))
                 .filter(c => !!c)
                 .forEach(c => addColorToPalette(rgbToHex(...c)));
             // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
@@ -638,27 +638,37 @@ class ColorPicker {
                 el.className = 'a-color-picker-palette-color a-color-picker-palette-add';
                 el.innerHTML = '+';
                 row.appendChild(el);
-            }
-            row.addEventListener('click', (e) => {
-                if (/a-color-picker-palette-add/.test(e.target.className)) {
-                    if (e.shiftKey) {
-                        // rimuove tutti i colori
-                        removeColorToPalette(null, true);
-                    } else {
-                        // aggiungo il colore e triggero l'evento 'oncoloradd'
-                        addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                // gestisco eventi di aggiunta/rimozione/selezione colori
+                row.addEventListener('click', (e) => {
+                    if (/a-color-picker-palette-add/.test(e.target.className)) {
+                        if (e.shiftKey) {
+                            // rimuove tutti i colori
+                            removeColorToPalette(null, true);
+                        } else {
+                            // aggiungo il colore e triggero l'evento 'oncoloradd'
+                            addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                        }
+                    } else if (/a-color-picker-palette-color/.test(e.target.className)) {
+                        if (e.shiftKey) {
+                            // rimuovo il colore e triggero l'evento 'oncolorremove'
+                            removeColorToPalette(e.target, true);
+                        } else {
+                            // visto che il colore letto da backgroundColor risulta nel formato rgb()
+                            // devo usare il valore hex originale
+                            this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
+                        }
                     }
-                } else if (/a-color-picker-palette-color/.test(e.target.className)) {
-                    if (e.shiftKey) {
-                        // rimuovo il colore e triggero l'evento 'oncolorremove'
-                        removeColorToPalette(e.target, true);
-                    } else {
+                });
+            } else {
+                // gestisco il solo evento di selezione del colore
+                row.addEventListener('click', (e) => {
+                    if (/a-color-picker-palette-color/.test(e.target.className)) {
                         // visto che il colore letto da backgroundColor risulta nel formato rgb()
                         // devo usare il valore hex originale
                         this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
                     }
-                }
-            });
+                });
+            }
         } else {
             // la palette con i colori predefiniti viene nasconsta se non ci sono colori
             row.style.display = 'none';
@@ -782,7 +792,7 @@ class ColorPicker {
         } else {
             this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
         }
-        this.onchange && this.onchange();
+        this.onchange && this.onchange(this.color);
     }
 
     onPaletteColorAdd(color) {
