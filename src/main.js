@@ -792,7 +792,8 @@ class ColorPicker {
         } else {
             this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
         }
-        this.onchange && this.onchange(this.color);
+        // this.onchange && this.onchange();
+        this.onchange && this.onchange(this.preview.style.backgroundColor);
     }
 
     onPaletteColorAdd(color) {
