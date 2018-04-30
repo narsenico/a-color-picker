@@ -248,6 +248,49 @@ function parseColorToRgba(color) {
     }
 }
 
+function cssHslToHsl(hsl) {
+    if (hsl) {
+        const [m, h, s, l] = /^hsl\((\d+),(\d+),(\d+)\)/i.exec(hsl) || [];
+        return m ? [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100)] : undefined;
+    }
+    return undefined;
+}
+
+function cssHslaToHsla(hsla) {
+    if (hsla) {
+        const [m, h, s, l, a] = /^hsla\((\d+),(\d+),(\d+),(\d*(.\d+)?)\)/i.exec(hsla) || [];
+        return m ? [limit(h, 0, 255), limit(s, 0, 255), limit(l, 0, 255), limit(a, 0, 1)] : undefined;
+    }
+    return undefined;
+}
+
+function parseColorToHsl(color) {
+    if (Array.isArray(color)) {
+        color = [limit(color[0], 0, 360), limit(color[1], 0, 100), limit(color[2], 0, 100)];
+        return color;
+    } else {
+        return cssHslToHsl(color);
+    }
+}
+
+function parseColorToHsla(color) {
+    if (Array.isArray(color)) {
+        color = [
+            limit(color[0], 0, 360),
+            limit(color[1], 0, 100),
+            limit(color[2], 0, 100),
+            limit(nvl(color[3], 1), 0, 1)
+        ];
+        return color;
+    } else {
+        const parsed = cssHslToHsl(color) || cssHslaToHsla(color);
+        if (parsed && parsed.length === 3) {
+            parsed.push(1);
+        }
+        return parsed;
+    }
+}
+
 function parseAttrBoolean(value, ifNull, ifEmpty) {
     if (value === null) {
         return ifNull;
@@ -317,16 +360,16 @@ class ColorPicker {
             container = parseElement(container);
             this.options = Object.assign({}, DEFAULT, options);
         }
-        
-/*         if (container) {
-            // se viene passato al costrutto un elemento HTML uso le opzioni di default
-            this.options = Object.assign({}, DEFAULT, { attachTo: options });
-        } else {
-            // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
-            this.options = Object.assign({}, DEFAULT, options);
-            container = parseElement(this.options.attachTo);
-        }
- */
+
+        /*         if (container) {
+                    // se viene passato al costrutto un elemento HTML uso le opzioni di default
+                    this.options = Object.assign({}, DEFAULT, { attachTo: options });
+                } else {
+                    // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
+                    this.options = Object.assign({}, DEFAULT, options);
+                    container = parseElement(this.options.attachTo);
+                }
+         */
         if (container) {
             // le opzioni possono essere specificate come attributi dell'elemento contenitore
             // quelle presenti sostituiranno le corrispondenti passate con il parametro options
@@ -581,8 +624,12 @@ class ColorPicker {
                 }
             };
             // solo i colori validi vengono aggiunti alla palette
+            let pp;
             palette
-                .map(p => p && parseColorToRgb(p))
+                // provo prima a interpretare il clore come RGB e se non ci riesco in HSL (a sua volta convertito in RGB)
+                .map(p => p &&
+                        ((pp = parseColorToRgb(p)) ||
+                            ((pp = parseColorToHsl(p)) && (pp = hslToRgb(...pp)))))
                 .filter(c => !!c)
                 .forEach(c => addColorToPalette(rgbToHex(...c)));
             // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
@@ -953,6 +1000,8 @@ export {
     from,
     parseColorToRgb,
     parseColorToRgba,
+    parseColorToHsl,
+    parseColorToHsla,
     rgbToHex,
     hslToRgb,
     rgbToHsl,
