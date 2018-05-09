@@ -4,21 +4,17 @@ const AColorPicker = require('../main.js');
 console.log(AColorPicker);
 
 const body = document.querySelector('body');
-const pickers = [...document.querySelectorAll('.picker')].map((el, index) => {
-    const picker = AColorPicker.createPicker(el)
-        .on('change', (picker) => {
-            console.log(index, 'changed', picker.color);
-            body.style.backgroundColor = picker.color;
+const pickers = AColorPicker.from('.picker')
+        .on('change', (picker, color) => {
+            console.log(picker.index, 'changed', color);
+            body.style.backgroundColor = color;
         })
         .on('coloradd', (picker, color) => {
-            console.log(index, 'coloradd', color);
+            console.log(picker.index, 'coloradd', color);
         })
         .on('colorremove', (picker, color) => {
-            console.log(index, 'colorremove', color);
-        })
-        .on(null, () => {});
-    return (window['p' + index] = picker);
-});
+            console.log(picker.index, 'colorremove', color);
+        });
 
 function printColor(picker) {
     console.info('rgb', picker.rgb, 'hsl', picker.hsl, 'hex', picker.color);

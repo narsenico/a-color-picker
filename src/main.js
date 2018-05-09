@@ -106,23 +106,21 @@ function parseElement(element, defaultElement, fallToDefault) {
     }
 }
 
-function parseElements(element, defaultElement, fallToDefault) {
-    if (!element) {
-        return [defaultElement];
-    } else if (Array.isArray(element)) {
-        return element;
-    } else if (element instanceof HTMLElement) {
-        return [element];
-    } else if (element instanceof NodeList) {
-        return [...element];
-    } else if (typeof element == 'string') {
-        return [...document.querySelectorAll(element)];
-    } else if (element.jquery) {
-        return element.get(); //TODO: da testare
-    } else if (fallToDefault) {
-        return [defaultElement];
+function parseElements(selector) {
+    if (!selector) {
+        return [];
+    } else if (Array.isArray(selector)) {
+        return selector;
+    } else if (selector instanceof HTMLElement) {
+        return [selector];
+    } else if (selector instanceof NodeList) {
+        return [...selector];
+    } else if (typeof selector == 'string') {
+        return [...document.querySelectorAll(selector)];
+    } else if (selector.jquery) {
+        return selector.get(); //TODO: da testare
     } else {
-        return null;
+        return [];
     }
 }
 
@@ -183,21 +181,66 @@ function canvasHelper(canvas) {
     };
 }
 
+/**
+ * @deprecated  usare cssColorToRgba()
+ * @param {string} color 
+ */
 function cssColorToRgb(color) {
     if (color) {
         const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
         // considero sia il formato esteso #RRGGGBB che quello corto #RGB
         // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
         const [, , , r, g, b, , rr, gg, bb] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F]))|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})))\s*$/i.exec(colorByName || color) || [];
-        if (r !== undefined) return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
-        else if (rr !== undefined) return [parseInt(rr, 16), parseInt(gg, 16), parseInt(bb, 16)];
+        if (r !== undefined) {
+            return [
+                parseInt(r + r, 16),
+                parseInt(g + g, 16),
+                parseInt(b + b, 16)
+            ];
+        } else if (rr !== undefined) {
+            return [
+                parseInt(rr, 16),
+                parseInt(gg, 16),
+                parseInt(bb, 16)
+            ];
+        }
     }
     return undefined;
 }
 
+function cssColorToRgba(color) {
+    if (color) {
+        const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
+        // considero sia il formato esteso #RRGGGBB[AA] che quello corto #RGB[A]
+        // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
+        const [, , , r, g, b, a, , rr, gg, bb, aa] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])?)|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?))\s*$/i.exec(colorByName || color) || [];
+        if (r !== undefined) {
+            return [
+                parseInt(r + r, 16),
+                parseInt(g + g, 16),
+                parseInt(b + b, 16),
+                a ? +((parseInt(a + a, 16)) / 255).toFixed(2) : 1
+            ];
+        } else if (rr !== undefined) {
+            return [
+                parseInt(rr, 16),
+                parseInt(gg, 16),
+                parseInt(bb, 16),
+                aa ? +((parseInt(aa, 16)) / 255).toFixed(2) : 1
+            ];
+        }
+    }
+    return undefined;
+}
+
+/**
+ * @deprecated  usare cssRgbaToRgba()
+ * @param {string} rgb 
+ */
 function cssRgbToRgb(rgb) {
     if (rgb) {
-        const [m, r, g, b] = /^rgb\((\d+),(\d+),(\d+)\)/i.exec(rgb) || [];
+        // rgb(int, int, int)
+        const [m, r, g, b] = /^rgb\((\d+)[\s,](\d+)[\s,](\d+)\)/i.exec(rgb) || [];
         return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)] : undefined;
     }
     return undefined;
@@ -205,8 +248,10 @@ function cssRgbToRgb(rgb) {
 
 function cssRgbaToRgba(rgba) {
     if (rgba) {
-        const [m, r, g, b, a] = /^rgba\((\d+),(\d+),(\d+),(\d*(.\d+)?)\)/i.exec(rgba) || [];
-        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(a, 0, 1)] : undefined;
+        // in CSS Colors Level 4 rgba() è un alias di rgb()
+        // rgb[a](int, int, int[, dec])
+        const [m, r, g, b, , a] = /^rgba?\((\d+)\s*[\s,]\s*(\d+)\s*[\s,]\s*(\d+)(\s*[\s,]\s*(\d*(.\d+)?))?\)/i.exec(rgba) || [];
+        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(nvl(a, 1), 0, 1)] : undefined;
     }
     return undefined;
 }
@@ -240,7 +285,7 @@ function parseColorToRgba(color) {
         ];
         return color;
     } else {
-        const parsed = cssColorToRgb(color) || cssRgbToRgb(color) || cssRgbaToRgba(color);
+        const parsed = cssColorToRgba(color) || cssRgbaToRgba(color);
         if (parsed && parsed.length === 3) {
             parsed.push(1);
         }
@@ -248,9 +293,14 @@ function parseColorToRgba(color) {
     }
 }
 
+/**
+ * @deprecated  usare cssHslaToHsla()
+ * @param {string} hsl 
+ */
 function cssHslToHsl(hsl) {
     if (hsl) {
-        const [m, h, s, l] = /^hsl\((\d+),(\d+),(\d+)\)/i.exec(hsl) || [];
+        // hsl(int, int, int)
+        const [m, h, s, l] = /^hsl\((\d+)[\s,](\d+)[\s,](\d+)\)/i.exec(hsl) || [];
         return m ? [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100)] : undefined;
     }
     return undefined;
@@ -258,8 +308,10 @@ function cssHslToHsl(hsl) {
 
 function cssHslaToHsla(hsla) {
     if (hsla) {
-        const [m, h, s, l, a] = /^hsla\((\d+),(\d+),(\d+),(\d*(.\d+)?)\)/i.exec(hsla) || [];
-        return m ? [limit(h, 0, 255), limit(s, 0, 255), limit(l, 0, 255), limit(a, 0, 1)] : undefined;
+        // in CSS Colors Level 4 hsla() è un alias di hsl()
+        // hsl[a](int, int, int[, dec])
+        const [m, h, s, l, , a] = /^hsla?\((\d+)\s*[\s,]\s*(\d+)\s*[\s,]\s*(\d+)(\s*[\s,]\s*(\d*(.\d+)?))?\)/i.exec(hsla) || [];
+        return m ? [limit(h, 0, 255), limit(s, 0, 255), limit(l, 0, 255), limit(nvl(a, 1), 0, 1)] : undefined;
     }
     return undefined;
 }
@@ -283,12 +335,59 @@ function parseColorToHsla(color) {
         ];
         return color;
     } else {
-        const parsed = cssHslToHsl(color) || cssHslaToHsla(color);
+        const parsed = cssHslaToHsla(color);
         if (parsed && parsed.length === 3) {
             parsed.push(1);
         }
         return parsed;
     }
+}
+
+/**
+ * TODO: questa funzione andra à sostituire tutte le varie parseColorToXXX
+ * 
+ * @param {any} color 
+ * @param {String} outFormat rgb (default), rgba, hsl, hsla, hex
+ */
+function parseColor(color,
+    outFormat = (outFormat || 'rgb').toLowerCase()) {
+    if (color !== null && color !== undefined) {
+        let pp;
+        if ((pp = parseColorToRgba(color)) ||
+            ((pp = parseColorToHsla(color)) && (pp = [...hslToRgb(...pp), pp[3]]))) {
+
+            switch (outFormat) {
+                case 'rgb':
+                default:
+                    return pp.slice(0, 3);
+                case 'rgbcss':
+                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]})`;
+                case 'rgbcss4':
+                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
+                case 'rgba':
+                    return pp;
+                case 'rgbacss':
+                    return `rgba(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
+                case 'hsl':
+                    return rgbToHsl(...pp);
+                case 'hslcss':
+                    pp = rgbToHsl(...pp);
+                    return `hsl(${pp[0]}, ${pp[1]}, ${pp[2]})`;
+                case 'hslcss4':
+                    const hh = rgbToHsl(...pp);
+                    return `hsl(${hh[0]}, ${hh[1]}, ${hh[2]}, ${pp[3]})`;
+                case 'hsla':
+                    return [...rgbToHsl(...pp), pp[3]];
+                case 'hslacss':
+                    const ha = rgbToHsl(...pp);
+                    return `hsla(${ha[0]}, ${ha[1]}, ${ha[2]}, ${pp[3]})`;
+                case 'hex':
+                    return rgbToHex(...pp);
+            }
+        }
+    }
+
+    return undefined;
 }
 
 function parseAttrBoolean(value, ifNull, ifEmpty) {
@@ -769,7 +868,8 @@ class ColorPicker {
                 this.updateInputRGB(this.R, this.G, this.B);
                 break;
             case COLOR:
-                [this.R, this.G, this.B, this.A] = parseColorToRgba(value) || [0, 0, 0, 1];
+                // [this.R, this.G, this.B, this.A] = parseColorToRgba(value) || [0, 0, 0, 1];
+                [this.R, this.G, this.B, this.A] = parseColor(value, 'rgba') || [0, 0, 0, 1];
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
@@ -995,7 +1095,11 @@ function createPicker(element, options) {
  */
 function from(selector, options) {
     // TODO: gestire eventuali errori nella creazione del picker
-    const pickers = parseElements(selector).map(el => createPicker(el, options));
+    const pickers = parseElements(selector).map((el, index) => {
+        const picker = createPicker(el, options);
+        picker.index = index;
+        return picker;
+    });
     pickers.on = function (eventName, cb) {
         pickers.forEach(picker => picker.on(eventName, cb));
         return this;
@@ -1013,6 +1117,7 @@ export {
     parseColorToRgba,
     parseColorToHsl,
     parseColorToHsla,
+    parseColor,
     rgbToHex,
     hslToRgb,
     rgbToHsl,

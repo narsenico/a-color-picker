@@ -1,22 +1,112 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>a-color-picker demo</title>
+	<link href="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.css" rel="stylesheet" />
+	<script src="https://cdn.rawgit.com/Automattic/expect.js/0.3.1/index.js"></script>
+	<script src="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.js"></script>
 </head>
+
 <body>
-	<div>
-		<button id="btnGetColor">get</button>
-		<label>rgb</label><input type="text" class="txt-color" data-prop="rgb">
-		<label>rgba</label><input type="text" class="txt-color" data-prop="rgba">
-		<label>hsl</label><input type="text" class="txt-color" data-prop="hsl">
-		<label>hsla</label><input type="text" class="txt-color" data-prop="hsla">
-		<label>color</label><input type="text" class="txt-color" data-prop="color">
-	</div>
-	<hr>
-	<div class="picker" acp-show-alpha acp-palette-editable acp-palette="#fd0;black"></div>
-	<div class="picker absolute" acp-show-rgb="no" acp-show-hsl="no" acp-palette="PALETTE_MATERIAL_CHROME"></div>
+	<div id="mocha"></div>
 	<div class="container">
-		<div class="picker absolute"></div>
+		<div>
+			<button id="btnGetColor">get</button>
+			<label>rgb</label>
+			<input type="text" class="txt-color" data-prop="rgb">
+			<label>rgba</label>
+			<input type="text" class="txt-color" data-prop="rgba">
+			<label>hsl</label>
+			<input type="text" class="txt-color" data-prop="hsl">
+			<label>hsla</label>
+			<input type="text" class="txt-color" data-prop="hsla">
+			<label>color</label>
+			<input type="text" class="txt-color" data-prop="color">
+		</div>
+		<hr>
+		<div class="picker" acp-show-alpha acp-palette-editable acp-palette="#fd0;black"></div>
+		<div class="picker absolute" acp-show-rgb="no" acp-show-hsl="no" acp-palette="PALETTE_MATERIAL_CHROME"></div>
+		<div class="container">
+			<div class="picker absolute"></div>
+		</div>
 	</div>
+	<script>
+		mocha.setup('bdd');
+		describe('Static functions', () => {
+			it('parseColor with named color', () => {
+				expect(AColorPicker.parseColor('red')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with hex', () => {
+				expect(AColorPicker.parseColor('#ff0000')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with hex => rgba', () => {
+				expect(AColorPicker.parseColor('#ff0000', 'rgba')).to.eql([255, 0, 0, 1]);
+			});
+			it('parseColor with hex 50% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('#ff000080', 'rgba')).to.eql([255, 0, 0, .5]);
+			});
+			it('parseColor with short hex', () => {
+				expect(AColorPicker.parseColor('#f00')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with short hex  => rgba67% opacity', () => {
+				expect(AColorPicker.parseColor('#f00a', 'rgba')).to.eql([255, 0, 0, .67]);
+			});
+			// RGB
+			it('parseColor with rgb(<comma>)', () => {
+				expect(AColorPicker.parseColor('rgb(255,0,0)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with rgb(<comma>) => rgba', () => {
+				expect(AColorPicker.parseColor('rgb(255,0,0)', 'rgba')).to.eql([255, 0, 0, 1]);
+			});
+			it('parseColor with rgb(<space>)', () => {
+				expect(AColorPicker.parseColor('rgb(255 0 0)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with rgb(<comma><space>)', () => {
+				expect(AColorPicker.parseColor('rgb(255, 0, 0)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with rgb(<comma>) 50% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('rgb(255,0,0,.5)', 'rgba')).to.eql([255, 0, 0, .5]);
+			});
+			it('parseColor with rgb(<space>) 50% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('rgb(255 0 0 .5)', 'rgba')).to.eql([255, 0, 0, .5]);
+			});
+			it('parseColor with rgba(<comma>) 70% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('rgba(255,0,0,.7)', 'rgba')).to.eql([255, 0, 0, .7]);
+			});
+			it('parseColor with rgba(<space>) 70% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('rgba(255 0 0 .7)', 'rgba')).to.eql([255, 0, 0, .7]);
+			});
+			// HSL
+			it('parseColor with hsl(<comma>)', () => {
+				expect(AColorPicker.parseColor('hsl(0,100,50)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with hsl(<comma>) => rgba', () => {
+				expect(AColorPicker.parseColor('hsl(0,100,50)', 'rgba')).to.eql([255, 0, 0, 1]);
+			});
+			it('parseColor with hsl(<space>)', () => {
+				expect(AColorPicker.parseColor('hsl(0 100 50)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with hsl(<comma><space>)', () => {
+				expect(AColorPicker.parseColor('hsl(0, 100, 50)')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with hsl(<comma>) 50% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('hsl(0,100,50,.5)', 'rgba')).to.eql([255, 0, 0, .5]);
+			});
+			it('parseColor with hsl(<space>) 50% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('hsl(0 100 50 .5)', 'rgba')).to.eql([255, 0, 0, .5]);
+			});
+			it('parseColor with hsla(<comma>) 70% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('hsla(0,100,50,.7)', 'rgba')).to.eql([255, 0, 0, .7]);
+			});
+			it('parseColor with hsla(<space>) 70% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('hsla(0 100 50 .7)', 'rgba')).to.eql([255, 0, 0, .7]);
+			});
+		});
+		setTimeout(() => {
+			mocha.run();
+		}, 500);
+	</script>
 </body>
+
 </html>
