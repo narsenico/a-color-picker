@@ -8,12 +8,22 @@ import {
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    cssColorToRgb,
+    cssColorToRgba,
+    cssRgbToRgb,
+    cssRgbaToRgba,
+    parseColorToRgb,
+    parseColorToRgba,
+    cssHslToHsl,
+    cssHslaToHsla,
+    parseColorToHsl,
+    parseColorToHsla,
+    parseColor,
     getLuminance,
     limit,
     ensureArray,
     nvl
 } from './utils.js';
-import { WSAVERNOTSUPPORTED } from 'constants';
 
 const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
@@ -179,215 +189,6 @@ function canvasHelper(canvas) {
             return coord;
         }
     };
-}
-
-/**
- * @deprecated  usare cssColorToRgba()
- * @param {string} color 
- */
-function cssColorToRgb(color) {
-    if (color) {
-        const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
-        // considero sia il formato esteso #RRGGGBB che quello corto #RGB
-        // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
-        const [, , , r, g, b, , rr, gg, bb] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F]))|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})))\s*$/i.exec(colorByName || color) || [];
-        if (r !== undefined) {
-            return [
-                parseInt(r + r, 16),
-                parseInt(g + g, 16),
-                parseInt(b + b, 16)
-            ];
-        } else if (rr !== undefined) {
-            return [
-                parseInt(rr, 16),
-                parseInt(gg, 16),
-                parseInt(bb, 16)
-            ];
-        }
-    }
-    return undefined;
-}
-
-function cssColorToRgba(color) {
-    if (color) {
-        const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
-        // considero sia il formato esteso #RRGGGBB[AA] che quello corto #RGB[A]
-        // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
-        const [, , , r, g, b, a, , rr, gg, bb, aa] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])?)|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})?))\s*$/i.exec(colorByName || color) || [];
-        if (r !== undefined) {
-            return [
-                parseInt(r + r, 16),
-                parseInt(g + g, 16),
-                parseInt(b + b, 16),
-                a ? +((parseInt(a + a, 16)) / 255).toFixed(2) : 1
-            ];
-        } else if (rr !== undefined) {
-            return [
-                parseInt(rr, 16),
-                parseInt(gg, 16),
-                parseInt(bb, 16),
-                aa ? +((parseInt(aa, 16)) / 255).toFixed(2) : 1
-            ];
-        }
-    }
-    return undefined;
-}
-
-/**
- * @deprecated  usare cssRgbaToRgba()
- * @param {string} rgb 
- */
-function cssRgbToRgb(rgb) {
-    if (rgb) {
-        // rgb(int, int, int)
-        const [m, r, g, b] = /^rgb\((\d+)[\s,](\d+)[\s,](\d+)\)/i.exec(rgb) || [];
-        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)] : undefined;
-    }
-    return undefined;
-}
-
-function cssRgbaToRgba(rgba) {
-    if (rgba) {
-        // in CSS Colors Level 4 rgba() è un alias di rgb()
-        // rgb[a](int, int, int[, dec])
-        const [m, r, g, b, , a] = /^rgba?\((\d+)\s*[\s,]\s*(\d+)\s*[\s,]\s*(\d+)(\s*[\s,]\s*(\d*(.\d+)?))?\)/i.exec(rgba) || [];
-        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(nvl(a, 1), 0, 1)] : undefined;
-    }
-    return undefined;
-}
-
-/**
- * Converte il colore in ingresso nel formato [r,g,b].
- * Color può assumere questi valori:
- * - array con [r,g,b] (viene ritornato così come è)
- * - nome del colore
- * - colore nel formato RGB HEX sia compatto che esteso
- *
- * @param      {string|array}    color   Il colore da convertire
- * @return     {array}  colore nel formato [r,g,b] o undefined se non valido
- */
-function parseColorToRgb(color) {
-    if (Array.isArray(color)) {
-        color = [limit(color[0], 0, 255), limit(color[1], 0, 255), limit(color[2], 0, 255)];
-        return color;
-    } else {
-        return cssColorToRgb(color) || cssRgbToRgb(color);
-    }
-}
-
-function parseColorToRgba(color) {
-    if (Array.isArray(color)) {
-        color = [
-            limit(color[0], 0, 255),
-            limit(color[1], 0, 255),
-            limit(color[2], 0, 255),
-            limit(nvl(color[3], 1), 0, 1)
-        ];
-        return color;
-    } else {
-        const parsed = cssColorToRgba(color) || cssRgbaToRgba(color);
-        if (parsed && parsed.length === 3) {
-            parsed.push(1);
-        }
-        return parsed;
-    }
-}
-
-/**
- * @deprecated  usare cssHslaToHsla()
- * @param {string} hsl 
- */
-function cssHslToHsl(hsl) {
-    if (hsl) {
-        // hsl(int, int, int)
-        const [m, h, s, l] = /^hsl\((\d+)[\s,](\d+)[\s,](\d+)\)/i.exec(hsl) || [];
-        return m ? [limit(h, 0, 360), limit(s, 0, 100), limit(l, 0, 100)] : undefined;
-    }
-    return undefined;
-}
-
-function cssHslaToHsla(hsla) {
-    if (hsla) {
-        // in CSS Colors Level 4 hsla() è un alias di hsl()
-        // hsl[a](int, int, int[, dec])
-        const [m, h, s, l, , a] = /^hsla?\((\d+)\s*[\s,]\s*(\d+)\s*[\s,]\s*(\d+)(\s*[\s,]\s*(\d*(.\d+)?))?\)/i.exec(hsla) || [];
-        return m ? [limit(h, 0, 255), limit(s, 0, 255), limit(l, 0, 255), limit(nvl(a, 1), 0, 1)] : undefined;
-    }
-    return undefined;
-}
-
-function parseColorToHsl(color) {
-    if (Array.isArray(color)) {
-        color = [limit(color[0], 0, 360), limit(color[1], 0, 100), limit(color[2], 0, 100)];
-        return color;
-    } else {
-        return cssHslToHsl(color);
-    }
-}
-
-function parseColorToHsla(color) {
-    if (Array.isArray(color)) {
-        color = [
-            limit(color[0], 0, 360),
-            limit(color[1], 0, 100),
-            limit(color[2], 0, 100),
-            limit(nvl(color[3], 1), 0, 1)
-        ];
-        return color;
-    } else {
-        const parsed = cssHslaToHsla(color);
-        if (parsed && parsed.length === 3) {
-            parsed.push(1);
-        }
-        return parsed;
-    }
-}
-
-/**
- * TODO: questa funzione andra à sostituire tutte le varie parseColorToXXX
- * 
- * @param {any} color 
- * @param {String} outFormat rgb (default), rgba, hsl, hsla, hex
- */
-function parseColor(color,
-    outFormat = (outFormat || 'rgb').toLowerCase()) {
-    if (color !== null && color !== undefined) {
-        let pp;
-        if ((pp = parseColorToRgba(color)) ||
-            ((pp = parseColorToHsla(color)) && (pp = [...hslToRgb(...pp), pp[3]]))) {
-
-            switch (outFormat) {
-                case 'rgb':
-                default:
-                    return pp.slice(0, 3);
-                case 'rgbcss':
-                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]})`;
-                case 'rgbcss4':
-                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
-                case 'rgba':
-                    return pp;
-                case 'rgbacss':
-                    return `rgba(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
-                case 'hsl':
-                    return rgbToHsl(...pp);
-                case 'hslcss':
-                    pp = rgbToHsl(...pp);
-                    return `hsl(${pp[0]}, ${pp[1]}, ${pp[2]})`;
-                case 'hslcss4':
-                    const hh = rgbToHsl(...pp);
-                    return `hsl(${hh[0]}, ${hh[1]}, ${hh[2]}, ${pp[3]})`;
-                case 'hsla':
-                    return [...rgbToHsl(...pp), pp[3]];
-                case 'hslacss':
-                    const ha = rgbToHsl(...pp);
-                    return `hsla(${ha[0]}, ${ha[1]}, ${ha[2]}, ${pp[3]})`;
-                case 'hex':
-                    return rgbToHex(...pp);
-            }
-        }
-    }
-
-    return undefined;
 }
 
 function parseAttrBoolean(value, ifNull, ifEmpty) {
@@ -678,7 +479,8 @@ class ColorPicker {
         input.title = 'click to copy';
         input.addEventListener('click', () => {
             // non uso direttamente inputRGBHEX perchè potrebbe contenere un colore non valido
-            input.value = rgbToHex(this.R, this.G, this.B);
+            //  converto in hexcss4 quindi aggiunge anche il valore hex dell'alpha ma solo se significativo (0<=a<1)
+            input.value = parseColor([this.R, this.G, this.B, this.A], 'hexcss4');
             input.select();
             document.execCommand('copy');
         });

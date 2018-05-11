@@ -43,11 +43,20 @@
 			it('parseColor with hex => rgba', () => {
 				expect(AColorPicker.parseColor('#ff0000', 'rgba')).to.eql([255, 0, 0, 1]);
 			});
+			it('parseColor with hex 0% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('#ff000000', 'rgba')).to.eql([255, 0, 0, 0]);
+			});
 			it('parseColor with hex 50% opacity => rgba', () => {
 				expect(AColorPicker.parseColor('#ff000080', 'rgba')).to.eql([255, 0, 0, .5]);
 			});
 			it('parseColor with short hex', () => {
 				expect(AColorPicker.parseColor('#f00')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with short hex => rgba', () => {
+				expect(AColorPicker.parseColor('#f00', 'rgba')).to.eql([255, 0, 0, 1]);
+			});
+			it('parseColor with short hex 0% opacity => rgba', () => {
+				expect(AColorPicker.parseColor('#f000', 'rgba')).to.eql([255, 0, 0, 0]);
 			});
 			it('parseColor with short hex  => rgba67% opacity', () => {
 				expect(AColorPicker.parseColor('#f00a', 'rgba')).to.eql([255, 0, 0, .67]);
