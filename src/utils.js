@@ -322,11 +322,7 @@ function parseColor(color, outFormat = (outFormat || 'rgb').toLowerCase()) {
                 case 'hex':
                     return rgbToHex(...pp);
                 case 'hexcss4':
-                    if (pp[3] === 0 || pp[3] < 1) {
-                        return rgbToHex(...pp) + ('00' + pp[3].toString(16)).slice(-2);
-                    } else {
-                        return rgbToHex(...pp);
-                    }
+                    return rgbToHex(...pp) + ('00' + parseInt(pp[3] * 255).toString(16)).slice(-2);
             }
         }
     }

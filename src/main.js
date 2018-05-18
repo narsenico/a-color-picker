@@ -25,6 +25,8 @@ import {
     nvl
 } from './utils.js';
 
+const VERSION = '1.0.6';
+
 const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
 
@@ -742,15 +744,40 @@ class ColorPicker {
     }
 }
 
-function wrapEventCallback(ctrl, picker, eventName, cb) {
-    if (cb && typeof cb === 'function') {
-        picker['on' + eventName] = function () {
-            cb.call(null, ctrl, ...arguments);
-        };
-    } else {
-        picker['on' + eventName] = null;
+class EventEmitter {
+    constructor(name) {
+        this.name = name;
+        this.listeners = [];
+    }
+    on(callback) {
+        if (callback) {
+            this.listeners.push(callback);
+        }
+    }
+    off(callback) {
+        if (callback) {
+            this.listeners = this.listeners.filter(cb => cb !== callback);
+        } else {
+            this.listeners = [];
+        }
+    }
+    emit(args, _this) {
+        const listeners = this.listeners.slice(0);
+        for (let ii = 0; ii < listeners.length; ii++) {
+            listeners[ii].apply(_this, args);
+        }
     }
 }
+
+// function wrapEventCallback(ctrl, picker, eventName, cb) {
+//     if (cb && typeof cb === 'function') {
+//         picker['on' + eventName] = () => {
+//             cb.call(null, ctrl, ...arguments);
+//         };
+//     } else {
+//         picker['on' + eventName] = null;
+//     }
+// }
 
 /**
  * Crea il color picker.
@@ -767,8 +794,17 @@ function wrapEventCallback(ctrl, picker, eventName, cb) {
  */
 function createPicker(element, options) {
     const picker = new ColorPicker(element, options);
-    const cbEvents = {};
-    return {
+    // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
+    // quando il picker triggera un evento, 
+    //  il "controller" emette lo stesso evento tramite il rispettivo EventEmitter
+    const cbEvents = {
+        change: new EventEmitter('change'),
+        coloradd: new EventEmitter('coloradd'),
+        colorremove: new EventEmitter('colorremove')
+    };
+    // non permetto l'accesso diretto al picker
+    // ma ritorno un "controller" per eseguire solo alcune azioni (get/set colore, eventi, etc.)
+    const controller = {
         get element() {
             return picker.element;
         },
@@ -814,9 +850,10 @@ function createPicker(element, options) {
         },
 
         /**
-         * Ritorna il colore corrente nel formato RGB HEX.
+         * Ritorna il colore corrente nel formato RGB HEX, 
+         * oppure nella notazione rgba() con alpha != 1.
          *
-         * @return     {string}  colorre corrente (es: #ffdd00)
+         * @return     {string}  colore corrente
          */
         get color() {
             if (picker.A === 1) {
@@ -839,31 +876,52 @@ function createPicker(element, options) {
             picker.onValueChanged(COLOR, color);
         },
 
+        /**
+         * @deprecated
+         */
         get onchange() {
-            return cbEvents['change'];
+            return cbEvents.change && cbEvents.change.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('change', cb)
+         */
         set onchange(cb) {
-            wrapEventCallback(this, picker, 'change', cb);
-            cbEvents['change'] = cb;
+            // wrapEventCallback(this, picker, 'change', cb);
+            // cbEvents['change'] = cb;
+            this.off('change').on('change', cb);
         },
 
+        /**
+         * @deprecated
+         */
         get oncoloradd() {
-            return cbEvents['coloradd'];
+            return cbEvents.coloradd && cbEvents.coloradd.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('coloradd', cb)
+         */
         set oncoloradd(cb) {
-            wrapEventCallback(this, picker, 'coloradd', cb);
-            cbEvents['coloradd'] = cb;
+            // wrapEventCallback(this, picker, 'coloradd', cb);
+            // cbEvents['coloradd'] = cb;
+            this.off('coloradd').on('coloradd', cb);
         },
 
+        /**
+         * @deprecated
+         */
         get oncolorremove() {
-            return cbEvents['colorremove'];
+            return cbEvents.colorremove && cbEvents.colorremove.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('colorremove', cb)
+         */
         set oncolorremove(cb) {
-            wrapEventCallback(this, picker, 'colorremove', cb);
-            cbEvents['colorremove'] = cb;
+            // wrapEventCallback(this, picker, 'colorremove', cb);
+            // cbEvents['colorremove'] = cb;
+            this.off('colorremove').on('colorremove', cb);
         },
 
         /**
@@ -877,16 +935,31 @@ function createPicker(element, options) {
 
         on(eventName, cb) {
             if (eventName) {
-                wrapEventCallback(this, picker, eventName, cb);
-                cbEvents[eventName] = cb;
+                cbEvents[eventName] && cbEvents[eventName].on(cb);
             }
             return this;
         },
 
         off(eventName) {
-            return this.on(eventName, null);
+            if (eventName) {
+                cbEvents[eventName] && cbEvents[eventName].off(cb);
+            }
+            return this;
         }
     };
+    // ogni volta che viene triggerato un evento, uso il corrispettivo EventEmitter per propagarlo a tutte le callback associate
+    //  le callback vengono richiamate con il "controller" come "this" 
+    //  e il primo parametro è sempre il "controller" seguito da tutti i parametri dell'evento
+    picker.onchange = (...args) => {
+        cbEvents.change.emit([controller, ...args], controller);
+    };
+    picker.oncoloradd = (...args) => {
+        cbEvents.coloradd.emit([controller, ...args], controller);
+    };
+    picker.oncolorremove = (...args) => {
+        cbEvents.colorremove.emit([controller, ...args], controller);
+    };
+    return controller;
 }
 
 /**
@@ -907,7 +980,8 @@ function from(selector, options) {
         return this;
     };
     pickers.off = function (eventName) {
-        return this.on(eventName, null);
+        pickers.forEach(picker => picker.off(eventName));
+        return this;
     };
     return pickers;
 }
@@ -928,5 +1002,6 @@ export {
     getLuminance,
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
-    PALETTE_MATERIAL_CHROME
+    PALETTE_MATERIAL_CHROME,
+    VERSION
 };
