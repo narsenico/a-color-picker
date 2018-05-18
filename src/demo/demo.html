@@ -61,6 +61,15 @@
 			it('parseColor with short hex  => rgba67% opacity', () => {
 				expect(AColorPicker.parseColor('#f00a', 'rgba')).to.eql([255, 0, 0, .67]);
 			});
+			it('parseColor with color name  => hex + alpha', () => {
+				expect(AColorPicker.parseColor('red', 'hexcss4')).to.eql('#ff0000ff');
+			});
+			it('parseColor with color name  => hex67% opacity', () => {
+				expect(AColorPicker.parseColor('#f00a', 'hexcss4')).to.eql('#ff0000aa');
+			});
+			it('parseColor with color name  => hex0% opacity', () => {
+				expect(AColorPicker.parseColor('#f000', 'hexcss4')).to.eql('#ff000000');
+			});
 			// RGB
 			it('parseColor with rgb(<comma>)', () => {
 				expect(AColorPicker.parseColor('rgb(255,0,0)')).to.eql([255, 0, 0]);

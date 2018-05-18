@@ -5,16 +5,18 @@ console.log(AColorPicker);
 
 const body = document.querySelector('body');
 const pickers = AColorPicker.from('.picker')
-        .on('change', (picker, color) => {
-            console.log(picker.index, 'changed', color);
-            body.style.backgroundColor = color;
-        })
-        .on('coloradd', (picker, color) => {
-            console.log(picker.index, 'coloradd', color);
-        })
-        .on('colorremove', (picker, color) => {
-            console.log(picker.index, 'colorremove', color);
-        });
+    .on('change', (picker, color) => {
+        console.log(picker.index, 'changed', color);
+    })
+    .on('change', (picker, color) => {
+        body.style.backgroundColor = color;
+    })
+    .on('coloradd', (picker, color) => {
+        console.log(picker.index, 'coloradd', color);
+    })
+    .on('colorremove', (picker, color) => {
+        console.log(picker.index, 'colorremove', color);
+    });
 
 function printColor(picker) {
     console.info('rgb', picker.rgb, 'hsl', picker.hsl, 'hex', picker.color);
