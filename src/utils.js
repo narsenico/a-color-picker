@@ -280,13 +280,17 @@ function parseColorToHsla(color) {
 }
 
 /**
- * TODO: questa funzione andra à sostituire tutte le varie parseColorToXXX esportate
+ * TODO: i formati *css4 devono restituire alpha solo se questa è < 1
  * 
  * outFormat può assumere questi valori:
- * rgb (default), rgbcss, rgbcss4, rgba, rgbacss, hsl, hslcss, hslcss4, hsla, hslacss, hex, hexcss4
+ * rgb (default), rgbcss, rgbcss4, rgba, rgbacss, hsl, hslcss, hslcss4, hsla, hslacss, hex, hexcss4, int
  * 
- * @param {any} color 
- * @param {String} outFormat formato output
+ * se outFormat è un oggetto (typeof 'object') gli vengono aggiunte tante proprietà 
+ * quanti sono i formati supportati e i rispettivi valori
+ * 
+ * @param   {any} color 
+ * @param   {String|Object} outFormat formato output
+ * @return  {String} colore formattato o undefined se non riconosciuto
  */
 function parseColor(color, outFormat = (outFormat || 'rgb').toLowerCase()) {
     if (color !== null && color !== undefined) {
@@ -294,40 +298,58 @@ function parseColor(color, outFormat = (outFormat || 'rgb').toLowerCase()) {
         if ((pp = parseColorToRgba(color)) ||
             ((pp = parseColorToHsla(color)) && (pp = [...hslToRgb(...pp), pp[3]]))) {
 
-            switch (outFormat) {
-                case 'rgb':
-                default:
-                    return pp.slice(0, 3);
-                case 'rgbcss':
-                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]})`;
-                case 'rgbcss4':
-                    return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
-                case 'rgba':
-                    return pp;
-                case 'rgbacss':
-                    return `rgba(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
-                case 'hsl':
-                    return rgbToHsl(...pp);
-                case 'hslcss':
-                    pp = rgbToHsl(...pp);
-                    return `hsl(${pp[0]}, ${pp[1]}, ${pp[2]})`;
-                case 'hslcss4':
-                    const hh = rgbToHsl(...pp);
-                    return `hsl(${hh[0]}, ${hh[1]}, ${hh[2]}, ${pp[3]})`;
-                case 'hsla':
-                    return [...rgbToHsl(...pp), pp[3]];
-                case 'hslacss':
-                    const ha = rgbToHsl(...pp);
-                    return `hsla(${ha[0]}, ${ha[1]}, ${ha[2]}, ${pp[3]})`;
-                case 'hex':
-                    return rgbToHex(...pp);
-                case 'hexcss4':
-                    return rgbToHex(...pp) + ('00' + parseInt(pp[3] * 255).toString(16)).slice(-2);
+            if (typeof outFormat === 'object') {
+                return ['rgb', 'rgbcss', 'rgbcss4', 'rgba', 'rgbacss',
+                    'hsl', 'hslcss', 'hslcss4', 'hsla', 'hslacss',
+                    'hex', 'hexcss4', 'int'].reduce((m, f) => { m[f] = formatColor(pp, f); return m; }, outFormat || {});
+            } else {
+                return formatColor(pp, outFormat);
             }
         }
     }
 
     return undefined;
+}
+
+/**
+ * 
+ * @private
+ * @param {Array} pp rgba
+ * @param {String} outFormat 
+ */
+function formatColor(pp, outFormat) {
+    switch (outFormat) {
+        case 'rgb':
+        default:
+            return pp.slice(0, 3);
+        case 'rgbcss':
+            return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]})`;
+        case 'rgbcss4':
+            return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
+        case 'rgba':
+            return pp;
+        case 'rgbacss':
+            return `rgba(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
+        case 'hsl':
+            return rgbToHsl(...pp);
+        case 'hslcss':
+            pp = rgbToHsl(...pp);
+            return `hsl(${pp[0]}, ${pp[1]}, ${pp[2]})`;
+        case 'hslcss4':
+            const hh = rgbToHsl(...pp);
+            return `hsl(${hh[0]}, ${hh[1]}, ${hh[2]}, ${pp[3]})`;
+        case 'hsla':
+            return [...rgbToHsl(...pp), pp[3]];
+        case 'hslacss':
+            const ha = rgbToHsl(...pp);
+            return `hsla(${ha[0]}, ${ha[1]}, ${ha[2]}, ${pp[3]})`;
+        case 'hex':
+            return rgbToHex(...pp);
+        case 'hexcss4':
+            return rgbToHex(...pp) + ('00' + parseInt(pp[3] * 255).toString(16)).slice(-2);
+        case 'int':
+            return rgbToInt(...pp);
+    }
 }
 
 /**

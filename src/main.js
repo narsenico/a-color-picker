@@ -527,14 +527,9 @@ class ColorPicker {
                 }
             };
             // solo i colori validi vengono aggiunti alla palette
-            let pp;
-            palette
-                // provo prima a interpretare il clore come RGB e se non ci riesco in HSL (a sua volta convertito in RGB)
-                .map(p => p &&
-                    ((pp = parseColorToRgb(p)) ||
-                        ((pp = parseColorToHsl(p)) && (pp = hslToRgb(...pp)))))
+            palette.map(c => parseColor(c, 'hex'))
                 .filter(c => !!c)
-                .forEach(c => addColorToPalette(rgbToHex(...c)));
+                .forEach(c => addColorToPalette(c));
             // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
             if (this.options.paletteEditable) {
                 const el = document.createElement('div');
@@ -672,7 +667,6 @@ class ColorPicker {
                 this.updateInputRGB(this.R, this.G, this.B);
                 break;
             case COLOR:
-                // [this.R, this.G, this.B, this.A] = parseColorToRgba(value) || [0, 0, 0, 1];
                 [this.R, this.G, this.B, this.A] = parseColor(value, 'rgba') || [0, 0, 0, 1];
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
@@ -802,6 +796,8 @@ function createPicker(element, options) {
         coloradd: new EventEmitter('coloradd'),
         colorremove: new EventEmitter('colorremove')
     };
+    let isChanged = true, 
+        memColorf = {};
     // non permetto l'accesso diretto al picker
     // ma ritorno un "controller" per eseguire solo alcune azioni (get/set colore, eventi, etc.)
     const controller = {
@@ -828,7 +824,8 @@ function createPicker(element, options) {
         },
 
         get rgbhex() {
-            return rgbToHex(picker.R, picker.G, picker.B);
+            // return rgbToHex(picker.R, picker.G, picker.B);
+            return this.colorf.hex;
         },
 
         get rgba() {
@@ -856,11 +853,12 @@ function createPicker(element, options) {
          * @return     {string}  colore corrente
          */
         get color() {
-            if (picker.A === 1) {
-                return this.rgbhex;
-            } else {
-                return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
-            }
+            // if (picker.A === 1) {
+            //     return this.rgbhex;
+            // } else {
+            //     return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
+            // }
+            return this.colorf.toString();
         },
 
         /**
@@ -874,6 +872,21 @@ function createPicker(element, options) {
          */
         set color(color) {
             picker.onValueChanged(COLOR, color);
+        },
+
+        // TODO: non mi piace il nome della proprietà colorf
+        get colorf() {
+            if (isChanged) {
+                const rgba = [picker.R, picker.G, picker.B, picker.A];
+                // la conversione in stringa segue le regole della proprietà color
+                const ts = picker.A < 1 ? `rgba(${picker.R},${picker.G},${picker.B},${picker.A})` : rgbToHex(...rgba);
+                // passando un oggetto a parseColor come secondo parametro, lo riempirà con tutti i formati disponibili
+                memColorf = parseColor(rgba, memColorf);
+                memColorf.toString = () => ts;
+                isChanged = false;
+            }
+            // devo per forza passare una copia, altrimenti memColor può esssere modificato dall'esterno
+            return Object.assign({}, memColorf);
         },
 
         /**
@@ -951,6 +964,7 @@ function createPicker(element, options) {
     //  le callback vengono richiamate con il "controller" come "this" 
     //  e il primo parametro è sempre il "controller" seguito da tutti i parametri dell'evento
     picker.onchange = (...args) => {
+        isChanged = true; // così le proprietà in lettura dovranno ricalcolare il loro valore
         cbEvents.change.emit([controller, ...args], controller);
     };
     picker.oncoloradd = (...args) => {
