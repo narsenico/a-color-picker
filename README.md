@@ -169,3 +169,7 @@ AColorPicker.rgbToInt(83, 196, 49); // return 5489713
 ```js
 AColorPicker.intToRgb(5489713); // return [83, 196, 49]
 ```
+`getLuminance(r, g, b)`: r, g and b are number between 0 and 255.
+```js
+AColorPicker.getLuminance(83, 196, 49); // return 0.41540606322787504
+```

@@ -1,4 +1,5 @@
 const path = require('path'),
+    webpack = require('webpack'),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     CleanWebpackPlugin = require('clean-webpack-plugin');
 
@@ -11,8 +12,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
-        // il valore di ritorno dell'entry point viene assegnato all'oggetto window
-        libraryTarget: 'window',
+        // il valore di ritorno dell'entry point viene assegnato all'oggetto window => provato umd
+        libraryTarget: 'umd', // TODO: testare bene con <script> e require()/import
         library: 'AColorPicker'
     },
     plugins: [
@@ -23,14 +24,17 @@ module.exports = {
             title: 'a-color-picker'
         }),
         // usa un file come template
-		new HtmlWebpackPlugin({
+        new HtmlWebpackPlugin({
             filename: 'demo.html',
             template: './src/demo/demo.html'
         })
     ],
     module: {
         rules: [{
-            test: /\.css$/,
+            test: /main\.css$/,
+            use: ['to-string-loader', 'css-loader']
+        }, {
+            test: /[^main]\.css$/,
             use: [
                 'style-loader',
                 'css-loader'

@@ -1,4 +1,5 @@
-import './main.css';
+// TODO: provo a importare "a mano" il css
+// import './main.css';
 import {
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
@@ -27,8 +28,8 @@ import {
 
 const VERSION = '1.0.6';
 
-const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
-    IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
+const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
+    IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
 
 const DEFAULT = {
     attachTo: 'body',
@@ -110,7 +111,7 @@ function parseElement(element, defaultElement, fallToDefault) {
     } else if (typeof element == 'string') {
         return document.querySelector(element);
     } else if (element.jquery) {
-        return element.get(0); //TODO: da testare
+        return element.get(0); //TODO: da testare parseElement con jQuery
     } else if (fallToDefault) {
         return defaultElement;
     } else {
@@ -130,7 +131,7 @@ function parseElements(selector) {
     } else if (typeof selector == 'string') {
         return [...document.querySelectorAll(selector)];
     } else if (selector.jquery) {
-        return selector.get(); //TODO: da testare
+        return selector.get(); //TODO: da testare parseElements con jQuery
     } else {
         return [];
     }
@@ -787,6 +788,8 @@ class EventEmitter {
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
 function createPicker(element, options) {
+    // TODO: BUG solo options con attachTo non valorizzato genera errore (body non viene trovato)
+
     const picker = new ColorPicker(element, options);
     // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
     // quando il picker triggera un evento, 
@@ -796,8 +799,9 @@ function createPicker(element, options) {
         coloradd: new EventEmitter('coloradd'),
         colorremove: new EventEmitter('colorremove')
     };
-    let isChanged = true, 
-        memColorf = {};
+    let isChanged = true,
+        // memoize per la proprietà all
+        memAll = {};
     // non permetto l'accesso diretto al picker
     // ma ritorno un "controller" per eseguire solo alcune azioni (get/set colore, eventi, etc.)
     const controller = {
@@ -825,7 +829,7 @@ function createPicker(element, options) {
 
         get rgbhex() {
             // return rgbToHex(picker.R, picker.G, picker.B);
-            return this.colorf.hex;
+            return this.all.hex;
         },
 
         get rgba() {
@@ -858,7 +862,7 @@ function createPicker(element, options) {
             // } else {
             //     return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
             // }
-            return this.colorf.toString();
+            return this.all.toString();
         },
 
         /**
@@ -874,19 +878,21 @@ function createPicker(element, options) {
             picker.onValueChanged(COLOR, color);
         },
 
-        // TODO: non mi piace il nome della proprietà colorf
-        get colorf() {
+        /**
+         * @return  {Object}    oggetto contenente il colore corrente in tutti i formati noti a parseColor()
+         */
+        get all() {
             if (isChanged) {
                 const rgba = [picker.R, picker.G, picker.B, picker.A];
                 // la conversione in stringa segue le regole della proprietà color
                 const ts = picker.A < 1 ? `rgba(${picker.R},${picker.G},${picker.B},${picker.A})` : rgbToHex(...rgba);
                 // passando un oggetto a parseColor come secondo parametro, lo riempirà con tutti i formati disponibili
-                memColorf = parseColor(rgba, memColorf);
-                memColorf.toString = () => ts;
+                memAll = parseColor(rgba, memAll);
+                memAll.toString = () => ts;
                 isChanged = false;
             }
-            // devo per forza passare una copia, altrimenti memColor può esssere modificato dall'esterno
-            return Object.assign({}, memColorf);
+            // devo per forza passare una copia, altrimenti memAll può esssere modificato dall'esterno
+            return Object.assign({}, memAll);
         },
 
         /**
@@ -998,6 +1004,19 @@ function from(selector, options) {
         return this;
     };
     return pickers;
+}
+
+if (typeof window !== 'undefined') {
+    // solo in ambiente browser inserisco direttamente nella pagina html il css
+    //  per sicurezza controllo che non sia già presente
+    if (!document.querySelector('head>style[data-source="a-color-picker"]')) {
+        const css = require('./main.css').toString();
+        const style = document.createElement('style');
+        style.setAttribute('type', 'text/css');
+        style.setAttribute('data-source', 'a-color-picker');
+        style.innerHTML = css;
+        document.querySelector('head').appendChild(style);
+    }
 }
 
 export {
