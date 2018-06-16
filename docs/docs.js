@@ -1898,6 +1898,7 @@ if (typeof window !== 'undefined') {
         style.setAttribute('type', 'text/css');
         style.setAttribute('data-source', 'a-color-picker');
         style.innerHTML = css;
+        // TODO: verificare che esista <head>
         document.querySelector('head').appendChild(style);
     }
 }

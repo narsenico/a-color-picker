@@ -120,6 +120,27 @@
 			it('parseColor with hsla(<space>) 70% opacity => rgba', () => {
 				expect(AColorPicker.parseColor('hsla(0 100 50 .7)', 'rgba')).to.eql([255, 0, 0, .7]);
 			});
+			// all
+			it('parseColor with named color => {}', () => {
+				expect(JSON.stringify(AColorPicker.parseColor('red', {}))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+			});
+			it('parseColor with named color => new Object()', () => {
+				expect(JSON.stringify(AColorPicker.parseColor('red', new Object()))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+			});
+			// default
+			it('parseColor with named color => unknown outFormat', () => {
+				expect(AColorPicker.parseColor('red', 'aaa')).to.eql([255, 0, 0]);
+			});
+			it('parseColor with named color => wrong case outFormat', () => {
+				expect(AColorPicker.parseColor('red', 'HEXCSS4')).to.eql('#ff0000ff');
+			});
+			it('parseColor with named color => No plain object', () => {
+				expect(AColorPicker.parseColor('red', new Date())).to.eql([255, 0, 0]);
+			});
+			it('parseColor with named color => class', () => {
+				class a {};
+				expect(AColorPicker.parseColor('red', new a())).to.eql([255, 0, 0]);
+			});
 		});
 		setTimeout(() => {
 			mocha.run();

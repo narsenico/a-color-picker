@@ -7,8 +7,8 @@ const body = document.querySelector('body');
 const pickers = AColorPicker.from('.picker')
     .on('change', (picker, color) => {
         // console.log(picker.index, 'changed', color);
-        console.log(picker.index, 'changed', picker.colorf.toString());
-        console.dir(picker.colorf);
+        console.log(picker.index, 'changed', picker.all.toString());
+        console.dir(picker.all);
     })
     .on('change', (picker, color) => {
         body.style.backgroundColor = color;

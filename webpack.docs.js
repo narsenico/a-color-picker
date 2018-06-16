@@ -6,25 +6,25 @@ const path = require('path'),
 
 module.exports = {
     entry: {
-        acolorpicker: './src/main.js',
+        // acolorpicker: './src/main.js',
         docs: './src/docs/docs.js'
     },
     output: {
         path: path.resolve(__dirname, 'docs'),
         filename: '[name].js',
-        // il valore di ritorno dell'entry point viene assegnato all'oggetto window
-        libraryTarget: 'window',
-        library: 'AColorPicker'
+        // // il valore di ritorno dell'entry point viene assegnato all'oggetto window
+        // libraryTarget: 'window',
+        // library: 'AColorPicker'
     },
     plugins: [
         // pulisce le cartelle specificate in caso di successo nella compilazione
         new CleanWebpackPlugin(['docs']),
-        // crea un file html (default index.html) con gli <script> per servire i bundle
-        new HtmlWebpackPlugin({
-            title: 'a-color-picker'
-        }),
+        // // crea un file html (default index.html) con gli <script> per servire i bundle
+        // new HtmlWebpackPlugin({
+        //     title: 'a-color-picker'
+        // }),
         // usa un file come template
-	   new HtmlWebpackPlugin({
+        new HtmlWebpackPlugin({
             filename: 'index.html',
             template: './src/docs/index.html'
         }),
@@ -33,11 +33,14 @@ module.exports = {
             'process.env': {
                 'NODE_ENV': JSON.stringify('production')
             }
-        })       
+        })
     ],
     module: {
         rules: [{
-            test: /\.css$/,
+            test: /main\.css$/,
+            use: ['to-string-loader', 'css-loader']
+        }, {
+            test: /[^main]\.css$/,
             use: [
                 'style-loader',
                 'css-loader'
