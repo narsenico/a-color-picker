@@ -11,8 +11,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
-        // il valore di ritorno dell'entry point viene assegnato all'oggetto window
-        libraryTarget: 'window',
+        libraryTarget: 'umd',
         library: 'AColorPicker'
     },
     plugins: [
