@@ -1,5 +1,11 @@
-// TODO: provo a importare "a mano" il css
-// import './main.css';
+/*!
+ * a-color-picker
+ * https://github.com/narsenico/a-color-picker
+ * 
+ * Copyright (c) 2017-2018, Gianfranco Caldi.
+ * Released under the MIT License.
+ */
+
 import {
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
@@ -25,13 +31,15 @@ import {
     ensureArray,
     nvl
 } from './utils.js';
+import isPlainObject from 'is-plain-object';
 
-const VERSION = '1.0.6';
+const VERSION = '1.1.0';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
 
 const DEFAULT = {
+    id: null,
     attachTo: 'body',
     showHSL: true,
     showRGB: true,
@@ -249,15 +257,16 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
 class ColorPicker {
     constructor(container, options) {
         if (!options) {
-            if (container && container.attachTo) {
-                // se non trovo options e container è un {} con almeno la proprietà attachTo
-                //  lo considero il vero options
+            //controllo se siamo nel caso di options passato come primo parametro
+            if (container && isPlainObject(container)) {
+                // se non trovo options e container è un {} lo considero il vero options
                 this.options = Object.assign({}, DEFAULT, container);
                 container = parseElement(this.options.attachTo);
             } else {
                 // altrimenti uso le opzioni di default
                 this.options = Object.assign({}, DEFAULT);
-                container = parseElement(container);
+                // nel caso non vengano proprio passati parametri, considero attachTo di default
+                container = parseElement(nvl(container, this.options.attachTo));
             }
         } else {
             container = parseElement(container);
@@ -291,6 +300,9 @@ class ColorPicker {
 
             // creo gli elementi HTML e li aggiungo al container
             this.element = document.createElement('div');
+            if (this.options.id) {
+                this.element.id = this.options.id;
+            }
             this.element.className = 'a-color-picker';
             // se falsy viene nascosto .a-color-picker-rgb
             if (!this.options.showRGB) this.element.className += ' hide-rgb';
@@ -333,7 +345,7 @@ class ColorPicker {
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
-            throw `Container not found: ${this.options.attachTo}`;
+            throw new Error(`Container not found: ${this.options.attachTo}`);
         }
     }
 
@@ -788,8 +800,6 @@ class EventEmitter {
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
 function createPicker(element, options) {
-    // TODO: BUG solo options con attachTo non valorizzato genera errore (body non viene trovato)
-
     const picker = new ColorPicker(element, options);
     // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
     // quando il picker triggera un evento, 
@@ -959,7 +969,7 @@ function createPicker(element, options) {
             return this;
         },
 
-        off(eventName) {
+        off(eventName, cb) {
             if (eventName) {
                 cbEvents[eventName] && cbEvents[eventName].off(cb);
             }
@@ -979,6 +989,9 @@ function createPicker(element, options) {
     picker.oncolorremove = (...args) => {
         cbEvents.colorremove.emit([controller, ...args], controller);
     };
+    // TOOD: trovare un altro nome a ctrl, troppo comune
+    // TODO: definirla come readonly
+    picker.element.ctrl = controller;
     return controller;
 }
 
@@ -1010,7 +1023,7 @@ if (typeof window !== 'undefined') {
     // solo in ambiente browser inserisco direttamente nella pagina html il css
     //  per sicurezza controllo che non sia già presente
     if (!document.querySelector('head>style[data-source="a-color-picker"]')) {
-        const css = require('./main.css').toString();
+        const css = require('./acolorpicker.css').toString();
         const style = document.createElement('style');
         style.setAttribute('type', 'text/css');
         style.setAttribute('data-source', 'a-color-picker');

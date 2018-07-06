@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>a-color-picker test</title>
+    <script src="http://chaijs.com/chai.js"></script>
+    <script src="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.js"></script>
+    <link href="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.css" rel="stylesheet" />
+</head>
+
+<body>
+    <h1>a-color-picker test with <a href="https://mochajs.org/">mocha</a> and <a href="http://www.chaijs.com/">chai</a></h1>
+    <div id="mocha"></div>
+    <script>
+        const expect = chai.expect;
+        mocha.setup('bdd');
+
+        describe('Static functions', () => {
+            it('parseColor with named color', () => {
+                expect(AColorPicker.parseColor('red')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with hex', () => {
+                expect(AColorPicker.parseColor('#ff0000')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with hex in rgba', () => {
+                expect(AColorPicker.parseColor('#ff0000', 'rgba')).to.eql([255, 0, 0, 1]);
+            });
+            it('parseColor with hex 0% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('#ff000000', 'rgba')).to.eql([255, 0, 0, 0]);
+            });
+            it('parseColor with hex 50% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('#ff000080', 'rgba')).to.eql([255, 0, 0, .5]);
+            });
+            it('parseColor with short hex', () => {
+                expect(AColorPicker.parseColor('#f00')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with short hex in rgba', () => {
+                expect(AColorPicker.parseColor('#f00', 'rgba')).to.eql([255, 0, 0, 1]);
+            });
+            it('parseColor with short hex 0% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('#f000', 'rgba')).to.eql([255, 0, 0, 0]);
+            });
+            it('parseColor with short hex  => rgba67% opacity', () => {
+                expect(AColorPicker.parseColor('#f00a', 'rgba')).to.eql([255, 0, 0, .67]);
+            });
+            it('parseColor with color name  => hex + alpha', () => {
+                expect(AColorPicker.parseColor('red', 'hexcss4')).to.eql('#ff0000ff');
+            });
+            it('parseColor with color name  => hex67% opacity', () => {
+                expect(AColorPicker.parseColor('#f00a', 'hexcss4')).to.eql('#ff0000aa');
+            });
+            it('parseColor with color name  => hex0% opacity', () => {
+                expect(AColorPicker.parseColor('#f000', 'hexcss4')).to.eql('#ff000000');
+            });
+            // RGB
+            it('parseColor with rgb(<comma>)', () => {
+                expect(AColorPicker.parseColor('rgb(255,0,0)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with rgb(<comma>) in rgba', () => {
+                expect(AColorPicker.parseColor('rgb(255,0,0)', 'rgba')).to.eql([255, 0, 0, 1]);
+            });
+            it('parseColor with rgb(<space>)', () => {
+                expect(AColorPicker.parseColor('rgb(255 0 0)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with rgb(<comma><space>)', () => {
+                expect(AColorPicker.parseColor('rgb(255, 0, 0)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with rgb(<comma>) 50% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('rgb(255,0,0,.5)', 'rgba')).to.eql([255, 0, 0, .5]);
+            });
+            it('parseColor with rgb(<space>) 50% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('rgb(255 0 0 .5)', 'rgba')).to.eql([255, 0, 0, .5]);
+            });
+            it('parseColor with rgba(<comma>) 70% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('rgba(255,0,0,.7)', 'rgba')).to.eql([255, 0, 0, .7]);
+            });
+            it('parseColor with rgba(<space>) 70% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('rgba(255 0 0 .7)', 'rgba')).to.eql([255, 0, 0, .7]);
+            });
+            // HSL
+            it('parseColor with hsl(<comma>)', () => {
+                expect(AColorPicker.parseColor('hsl(0,100,50)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with hsl(<comma>) in rgba', () => {
+                expect(AColorPicker.parseColor('hsl(0,100,50)', 'rgba')).to.eql([255, 0, 0, 1]);
+            });
+            it('parseColor with hsl(<space>)', () => {
+                expect(AColorPicker.parseColor('hsl(0 100 50)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with hsl(<comma><space>)', () => {
+                expect(AColorPicker.parseColor('hsl(0, 100, 50)')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with hsl(<comma>) 50% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('hsl(0,100,50,.5)', 'rgba')).to.eql([255, 0, 0, .5]);
+            });
+            it('parseColor with hsl(<space>) 50% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('hsl(0 100 50 .5)', 'rgba')).to.eql([255, 0, 0, .5]);
+            });
+            it('parseColor with hsla(<comma>) 70% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('hsla(0,100,50,.7)', 'rgba')).to.eql([255, 0, 0, .7]);
+            });
+            it('parseColor with hsla(<space>) 70% opacity in rgba', () => {
+                expect(AColorPicker.parseColor('hsla(0 100 50 .7)', 'rgba')).to.eql([255, 0, 0, .7]);
+            });
+            // all
+            it('parseColor with named color in {}', () => {
+                expect(JSON.stringify(AColorPicker.parseColor('red', {}))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+            });
+            it('parseColor with named color in new Object()', () => {
+                expect(JSON.stringify(AColorPicker.parseColor('red', new Object()))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+            });
+            // default
+            it('parseColor with named color in unknown outFormat', () => {
+                expect(AColorPicker.parseColor('red', 'aaa')).to.eql([255, 0, 0]);
+            });
+            it('parseColor with named color in wrong case outFormat', () => {
+                expect(AColorPicker.parseColor('red', 'HEXCSS4')).to.eql('#ff0000ff');
+            });
+            it('parseColor with named color in No plain object', () => {
+                expect(AColorPicker.parseColor('red', new Date())).to.eql([255, 0, 0]);
+            });
+            it('parseColor with named color in class', () => {
+                class a { };
+                expect(AColorPicker.parseColor('red', new a())).to.eql([255, 0, 0]);
+            });
+        });
+        describe('Constructor functions', () => {
+            it('createPicker with no arguments: attach to body', () => {
+                expect(AColorPicker.createPicker().element.parentElement).to.be.equal(document.body);
+            });
+            it('createPicker with empty object: attach to body', () => {
+                expect(AColorPicker.createPicker({}).element.parentElement).to.be.equal(document.body);
+            });
+            it('createPicker with valid container', () => {
+                expect(AColorPicker.createPicker('body').element.parentElement).to.be.equal(document.body);
+            });
+            it('createPicker with options containing attachTo', () => {
+                expect(AColorPicker.createPicker({ attachTo: 'body' }).element.parentElement).to.be.equal(document.body);
+            });
+            it('createPicker with invalid container: throw err', (done) => {
+                expect(() => AColorPicker.createPicker('.not-found')).to.throw();
+                done();
+            });
+            it('createPicker with empty string: throw err', (done) => {
+                expect(() => AColorPicker.createPicker('')).to.throw();
+                done();
+            });
+            it('createPicker with options containing invalid attachTo: throw err', (done) => {
+                expect(() => AColorPicker.createPicker({ attachTo: '.not-found' })).to.throw();
+                done();
+            });
+            it('createPicker with id', () => {
+                expect(AColorPicker.createPicker({id:'myColorPicker0'}).element.id).to.be.equal('myColorPicker0');
+            });
+            it('createPicker with initial color', () => {
+                const c = AColorPicker.parseColor('yellow', 'hex');
+                expect(AColorPicker.createPicker({color:'yellow'}).color).to.be.equal(c);
+            });
+            it('retrieve controller from picker element', () => {
+                const a = AColorPicker.createPicker({id:'myColorPicker1'});
+                const c = document.querySelector('#myColorPicker1').ctrl;
+                expect(a).to.be.equal(c);
+            });
+        });
+        setTimeout(() => {
+            mocha.run();
+        }, 500);
+    </script>
+</body>
+
+</html>

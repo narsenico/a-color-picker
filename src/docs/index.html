@@ -69,10 +69,10 @@
 							<a href="#api_acolorpicker_parsecolor">.parseColor</a>
 						</li>
 						<li>
-							<a href="#api_options">options</a>
+							<a href="#api_picker_controller">ACPController</a>
 						</li>
 						<li>
-							<a href="#api_picker_controller">controller</a>
+							<a href="#api_options">options</a>
 						</li>
 					</ul>
 				</li>
@@ -255,7 +255,7 @@
 						<tbody>
 							<tr>
 								<td colspan="2" class="explanation">A
-									<a href="#api_picker_controller">picker controller</a> instance
+									<a href="#api_picker_controller">ACPController</a> instance
 								</td>
 							</tr>
 						</tbody>
@@ -293,7 +293,7 @@
 						<tbody>
 							<tr>
 								<td colspan="2" class="explanation">An array of
-									<a href="#api_picker_controller">picker controllers</a>. This array has methods
+									<a href="#api_picker_controller">ACPController</a>. This array has helper methods
 									<code>on</code> and
 									<code>off</code> to attach/detach
 									<a href="#events">events</a> to all items.
@@ -321,8 +321,8 @@
 							</tr>
 							<tr>
 								<td>outFormat</td>
-								<td class="explanation">Output format, one of: rgb, rgbcss, rgbcss4, rgba, rgbacss, hsl, hslcss, hslcss4, hsla, hslacss, hex, hexcss4.<br>
-									If outFormat is a plain object, will be filled with all formats as properties.
+								<td class="explanation">Output format, one of: rgb, rgbcss, rgbcss4, rgba, rgbacss, hsl, hslcss, hslcss4, hsla, hslacss, hex, hexcss4.
+									<br> If outFormat is a plain object, will be filled with all formats as properties.
 								</td>
 							</tr>
 						</tbody>
@@ -357,75 +357,9 @@ AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>"
 					</table>
 				</section>
 				<section class="mark">
-					<a name="api_options"></a>
-					<code>options</code>
-					<p></p>
-					<table class="detail hover-on-row">
-						<thead>
-							<tr>
-								<th>Property</th>
-								<th></th>
-								<th>Type</th>
-								<th>Default</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>attachTo</td>
-								<td class="explanation">Where to attach the picker top element, can be HTMLElement, jQuery object or css selector</td>
-								<td class="explanation">String|Object</td>
-								<td class="explanation">body</td>
-							</tr>
-							<tr>
-								<td>showHSL</td>
-								<td class="explanation">If falsy hide the HSL inputs</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">true</td>
-							</tr>
-							<tr>
-								<td>showRGB</td>
-								<td class="explanation">If falsy hide the RGB inputs</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">true</td>
-							</tr>
-							<tr>
-								<td>showHEX</td>
-								<td class="explanation">If falsy hide the RGB HEX inputs</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">true</td>
-							</tr>
-							<tr>
-								<td>color</td>
-								<td class="explanation">Initial color</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">#ff0000</td>
-							</tr>
-							<tr>
-								<td>palette</td>
-								<td class="explanation">Array of predefined colors.
-									<br>Each element can be color name, rgb array, hex rgb, rgb(), rgba(), hsl(), hsla()</td>
-								<td class="explanation">Array</td>
-								<td class="explanation">null</td>
-							</tr>
-							<tr>
-								<td>paletteEditable</td>
-								<td class="explanation">If truly make the palette editable</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">false</td>
-							</tr>
-							<tr>
-								<td>showAlpha</td>
-								<td class="explanation">If truly show control to change opacity</td>
-								<td class="explanation">Boolean</td>
-								<td class="explanation">false</td>
-							</tr>
-						</tbody>
-					</table>
-				</section>
-				<section class="mark">
 					<a name="api_picker_controller"></a>
-					<code>picker controller</code>
-					<p>[todo: forse è meglio dividere in getter e setter]</p>
+					<code>ACPController</code>
+					<p>Can access picker properties and handle events.</p>
 					<table class="detail hover-on-body">
 						<thead>
 							<tr>
@@ -585,6 +519,72 @@ AColorPicker.<span class="prop">parseColor</span>(picker.<span class="prop">colo
 								<td colspan="3" class="explanation">
 									<pre class="eg" title="e.g."><code>picker.<span class="prop">off</span>("<span class="par">change</span>");</code></pre>
 								</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="mark">
+					<a name="api_options"></a>
+					<code>options</code>
+					<p></p>
+					<table class="detail hover-on-row">
+						<thead>
+							<tr>
+								<th>Property</th>
+								<th></th>
+								<th>Type</th>
+								<th>Default</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>attachTo</td>
+								<td class="explanation">Where to attach the picker top element, can be HTMLElement, jQuery object or css selector</td>
+								<td class="explanation">String|Object</td>
+								<td class="explanation">body</td>
+							</tr>
+							<tr>
+								<td>showHSL</td>
+								<td class="explanation">If falsy hide the HSL inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showRGB</td>
+								<td class="explanation">If falsy hide the RGB inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showHEX</td>
+								<td class="explanation">If falsy hide the RGB HEX inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showAlpha</td>
+								<td class="explanation">If truly show control to change opacity</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">false</td>
+							</tr>
+							<tr>
+								<td>color</td>
+								<td class="explanation">Initial color</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">#ff0000</td>
+							</tr>
+							<tr>
+								<td>palette</td>
+								<td class="explanation">Array of predefined colors.
+									<br>Each element can be color name, rgb array, hex rgb, rgb(), rgba(), hsl(), hsla()</td>
+								<td class="explanation">Array</td>
+								<td class="explanation">null</td>
+							</tr>
+							<tr>
+								<td>paletteEditable</td>
+								<td class="explanation">If truly make the palette editable</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">false</td>
 							</tr>
 						</tbody>
 					</table>

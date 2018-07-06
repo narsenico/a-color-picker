@@ -1,5 +1,5 @@
 import './docs.css';
-const AColorPicker = require('../main.js');
+const AColorPicker = require('../acolorpicker.js');
 const $title = document.querySelector('.title');
 
 const pickers = AColorPicker.from('.picker')
