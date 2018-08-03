@@ -45,6 +45,14 @@ module.exports = {
                     presets: ['env']
                 }
             }
+        }, {
+            test: /\.svg$/,
+            use: {
+                loader: 'svg-url-loader',
+                options: {
+                    stripdeclarations: true
+                }
+            }
         }]
     },
     devtool: 'cheap-module-source-map',

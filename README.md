@@ -1,4 +1,4 @@
-![a-color-picker](https://github.com/Tobaloidee/a-color-picker/blob/master/screenshots/logotype.png)
+![a-color-picker](/screenshots/logotype.png)
 
 A color picker for web app
 

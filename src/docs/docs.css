@@ -18,6 +18,12 @@ body {
 	background-color: #697b82;
 }
 
+.logo {
+	background-image: url('../../screenshots/favicon.svg');
+	background-size: contain;
+    background-repeat: no-repeat;
+}
+
 code {
 	color: #bc8f49;
 }
@@ -100,6 +106,10 @@ code .comment {
 	letter-spacing: .1em;
 	font-size: 3em;
 	color: var(--color-light);
+}
+
+.title>h1.logo {
+	padding: 4px 0 11px 38px;
 }
 
 .avatar {
