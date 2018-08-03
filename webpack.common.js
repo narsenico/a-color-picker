@@ -14,7 +14,9 @@ module.exports = {
     output: {
         path: __dirname + '/dist',
         libraryTarget: 'umd',
-        library: 'AColorPicker'
+        library: 'AColorPicker',
+        umdNamedDefine: true,
+        globalObject: 'typeof self !== \'undefined\' ? self : this'
     },
     plugins: [
         // pulisce le cartelle specificate in caso di successo nella compilazione
