@@ -46,6 +46,7 @@ Options:
 - `palette`: (*Array*) Array of predefined colors. Default **null**.
 - `paletteEditable`: (*Boolean*) If truly make the palette editable. Default **false**.
 - `showAlpha`: (*Boolean*) If truly show control to change opacity. Default **false**.
+- **_NEW!_** `useAlphaInPalette`: (*String|Boolean*) If truly enable alpha channel in palette colors. If 'auto' depends on the value of 'showAlpha'. Default **auto**.
 
 ### Listen for color change
 Set onchange property with a handler function.
@@ -141,7 +142,7 @@ picker.oncoloradd = (picker, color) => {
 picker.oncolorremove = (picker, color) => {
     // fired when color is removed from palette
 }
-// readonly property, return an array of hex colors
+// readonly property, return an array of colors
 picker.palette;
 ```
 

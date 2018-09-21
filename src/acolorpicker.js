@@ -33,7 +33,7 @@ import {
 } from './utils.js';
 import isPlainObject from 'is-plain-object';
 
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -47,7 +47,8 @@ const DEFAULT = {
     showAlpha: false,
     color: '#ff0000',
     palette: null,
-    paletteEditable: false
+    paletteEditable: false,
+    useAlphaInPalette: 'auto' //true|false|auto
 };
 
 const SL_BAR_SIZE = [200, 150],
@@ -502,21 +503,24 @@ class ColorPicker {
     }
 
     setPalette(row) {
+        // indica se considerare il canale alpha nei controlli della palette
+        // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
+        const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
         const palette = ensureArray(this.options.palette);
         if (this.options.paletteEditable || palette.length > 0) {
-            const addColorToPalette = (hex, refElement, fire) => {
+            const addColorToPalette = (color, refElement, fire) => {
                 // se il colore è già presente, non creo un nuovo <div> ma sposto quello esistente in coda
-                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + hex + '"]') ||
+                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + color + '"]') ||
                     document.createElement('div');
                 el.className = 'a-color-picker-palette-color';
-                el.style.backgroundColor = hex;
-                el.setAttribute('data-color', hex);
-                el.title = hex;
+                el.style.backgroundColor = color;
+                el.setAttribute('data-color', color);
+                el.title = color;
                 row.insertBefore(el, refElement);
-                this.palette[hex] = true;
+                this.palette[color] = true;
                 if (fire) {
-                    this.onPaletteColorAdd(hex);
+                    this.onPaletteColorAdd(color);
                 }
             };
             const removeColorToPalette = (element, fire) => {
@@ -540,7 +544,7 @@ class ColorPicker {
                 }
             };
             // solo i colori validi vengono aggiunti alla palette
-            palette.map(c => parseColor(c, 'hex'))
+            palette.map(c => parseColor(c, useAlphaInPalette ? 'rgbcss4' : 'hex'))
                 .filter(c => !!c)
                 .forEach(c => addColorToPalette(c));
             // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
@@ -557,7 +561,11 @@ class ColorPicker {
                             removeColorToPalette(null, true);
                         } else {
                             // aggiungo il colore e triggero l'evento 'oncoloradd'
-                            addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                            if (useAlphaInPalette) {
+                                addColorToPalette(parseColor([this.R, this.G, this.B, this.A], 'rgbcss4'), e.target, true);
+                            } else {
+                                addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                            }
                         }
                     } else if (/a-color-picker-palette-color/.test(e.target.className)) {
                         if (e.shiftKey) {
