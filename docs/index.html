@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-gray">
 
 <head>
 	<meta charset="utf-8">
@@ -13,6 +13,7 @@
 
 <body>
 	<!-- <div class="picker" acp-show-alpha acp-palette="red|yellow" acp-palette-editable></div> -->
+	<div class="logo upper-right">&nbsp;</div>
 	<header class="shadow darken flexrow">
 		<div class="flexcol-1">
 			<a href="https://github.com/narsenico" title="narsenico github repositories">
@@ -20,14 +21,14 @@
 			</a>
 		</div>
 		<div class="title flexcol-2">
-			<h1 class="logo">
+			<h1 class="">
 				a-color-picker | for web app
 			</h1>
 			<div class="badges">
 				<a href="https://badge.fury.io/js/a-color-picker">
 					<img src="https://badge.fury.io/js/a-color-picker.svg" alt="npm version" height="18">
 				</a>
-				<a href="https://codepen.io/narsenico/pen/xPxNeE">
+				<a href="https://codepen.io/collection/XprWjO/">
 					<img src="https://img.shields.io/badge/demo-codepen-0ebeff.svg" alt="codepen" height="18">
 				</a>
 				<iframe src="https://ghbtns.com/github-btn.html?user=narsenico&repo=a-color-picker&type=star&count=true" frameborder="0"
@@ -84,10 +85,10 @@
 				<h3>Install</h3>
 				<ul>
 					<li>
-						<code>npm install a-color-picker</code>
+						<code>npm install a-color-picker --save</code>
 					</li>
 					<li>
-						<code>bower install --save a-color-picker</code>
+						<code>bower install a-color-picker --save</code>
 					</li>
 					<li>a-color-picker is available on
 						<a href="https://www.jsdelivr.com/package/npm/a-color-picker">jsdelivr</a>
@@ -128,7 +129,7 @@
 				<h3>Palette</h3>
 				<p>Show a palette of colors using the
 					<code>acp-palette</code> attribute.
-					<br> Set a list of colors (named color, hex rgb, rgb(), rgba(), hsl(), hsla()) pipe separated or a predefined palette (PALETTE_MATERIAL_500,
+					<br> Set a list of colors - named color, hex rgb, rgb(), rgba(), hsl(), hsla() - pipe separated or a predefined palette (PALETTE_MATERIAL_500,
 					PALETTE_MATERIAL_CHROME).
 					<br> The
 					<code>acp-palette-editable</code> attribute can be set to allow the user to change the palette.</p>
@@ -147,7 +148,7 @@
 					<code>off</code> to detach it.
 					<pre class="eg"><code>AColorPicker.<span class="prop">from</span>(<span class="par">selector</span>)
     .on(<span class="par">eventName</span>, <span class="par">callback</span>)
-    .off(<span class="par">eventName</span>)</code></pre>
+    .off(<span class="par">eventName</span>, <span class="par">callback</span>)</code></pre>
 					<table class="detail hover-on-body">
 						<thead>
 							<tr>
@@ -586,12 +587,21 @@ AColorPicker.<span class="prop">parseColor</span>(picker.<span class="prop">colo
 								<td class="explanation">Boolean</td>
 								<td class="explanation">false</td>
 							</tr>
+							<tr>
+								<td>useAlphaInPalette</td>
+								<td class="explanation">If truly enable alpha channel in palette colors,<br>if 'auto' depends on the value of 'showAlpha'</td>
+								<td class="explanation">String|Boolean</td>
+								<td class="explanation">auto</td>
+							</tr>
 						</tbody>
 					</table>
 				</section>
 			</section>
 		</div>
 	</div>
+	<footer>
+		by <a href="https://github.com/narsenico" title="narsenico github repositories">narsenico</a>
+	</footer>
 	<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 <script type="text/javascript" src="docs.js"></script></body>
 

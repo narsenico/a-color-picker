@@ -14,14 +14,30 @@ html {
 
 body {
 	margin: 0;
-	background-color: #9a8297;
 	background-color: #697b82;
+}
+
+footer {
+	font-size: .8em;
+	text-align: center;
+	padding: 8px;
 }
 
 .logo {
 	background-image: url('../../screenshots/favicon.svg');
 	background-size: contain;
     background-repeat: no-repeat;
+}
+
+.logo.upper-right {
+	position: fixed;
+	top: 16px;
+	right: 8px;
+	width: 50px;
+	height: 50px;
+	opacity: .5;
+	pointer-events: none;
+	z-index: 3;
 }
 
 code {
@@ -57,6 +73,13 @@ code .comment {
 .flexcol-2 {
 	flex-grow: 9999;
 	flex-basis: 20em;
+}
+
+.flexcol-3 {
+	flex-grow: 1;
+	flex-basis: 9em;
+    margin: 16px 8px;
+    max-width: 1024px;	
 }
 
 .shadow {
@@ -205,4 +228,16 @@ table.detail.hover-on-body tbody:hover {
 	.content>nav>ul {
 		position: relative;
 	}	
+}
+
+.theme-gray {
+	--color-light: #697b82;
+}
+
+.theme-gray body {
+	background-color: #f5f5f5;
+}
+
+.theme-gray .avatar {
+	opacity: .6;
 }
