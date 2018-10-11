@@ -1,35 +1,45 @@
-const path = require('path'),
-    HtmlWebpackPlugin = require('html-webpack-plugin'),
+const webpack = require('webpack'),
+    CopyWebpackPlugin = require('copy-webpack-plugin'),
     CleanWebpackPlugin = require('clean-webpack-plugin');
+
+const banner = `a-color-picker (https://github.com/narsenico/a-color-picker)
+
+Copyright (c) 2017-2018, Gianfranco Caldi.
+Released under the MIT License.`;
 
 module.exports = {
     entry: {
-        // utils: './src/utils.js',
-        acolorpicker: './src/main.js',
-        demo: './src/demo/demo.js'
+        acolorpicker: './src/acolorpicker.js'
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
+        path: __dirname + '/dist',
         libraryTarget: 'umd',
-        library: 'AColorPicker'
+        library: 'AColorPicker',
+        umdNamedDefine: true,
+        globalObject: 'typeof self !== \'undefined\' ? self : this'
     },
     plugins: [
         // pulisce le cartelle specificate in caso di successo nella compilazione
         new CleanWebpackPlugin(['dist']),
-        // crea un file html (default index.html) con gli <script> per servire i bundle
-        new HtmlWebpackPlugin({
-            title: 'a-color-picker'
-        }),
-        // usa un file come template
-		new HtmlWebpackPlugin({
-            filename: 'demo.html',
-            template: './src/demo/demo.html'
-        })
+        // copio i file di definizione di typescript nella cartella di destinazione
+        new CopyWebpackPlugin([
+            {
+                from: 'src/*.d.ts',
+                to: '[name].ts',
+                toType: 'template'
+            }
+        ]),
+        // aggiunge un banner (con il copyright) in cima al file prodotto
+        new webpack.BannerPlugin(banner)
     ],
     module: {
         rules: [{
-            test: /\.css$/,
+            test: /acolorpicker\.css$/,
+            use: [
+                'to-string-loader',
+                'css-loader']
+        }, {
+            test: /[^acolorpicker]\.css$/,
             use: [
                 'style-loader',
                 'css-loader'

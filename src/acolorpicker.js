@@ -1,4 +1,11 @@
-import './main.css';
+/*!
+ * a-color-picker
+ * https://github.com/narsenico/a-color-picker
+ * 
+ * Copyright (c) 2017-2018, Gianfranco Caldi.
+ * Released under the MIT License.
+ */
+
 import {
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
@@ -8,15 +15,31 @@ import {
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    cssColorToRgb,
+    cssColorToRgba,
+    cssRgbToRgb,
+    cssRgbaToRgba,
+    parseColorToRgb,
+    parseColorToRgba,
+    cssHslToHsl,
+    cssHslaToHsla,
+    parseColorToHsl,
+    parseColorToHsla,
+    parseColor,
+    getLuminance,
     limit,
     ensureArray,
     nvl
 } from './utils.js';
+import isPlainObject from 'is-plain-object';
 
-const IS_EDGE = window.navigator.userAgent.indexOf('Edge') > -1,
-    IS_IE11 = window.navigator.userAgent.indexOf('rv:') > -1;
+const VERSION = '1.1.2';
+
+const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
+    IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
 
 const DEFAULT = {
+    id: null,
     attachTo: 'body',
     showHSL: true,
     showRGB: true,
@@ -24,7 +47,8 @@ const DEFAULT = {
     showAlpha: false,
     color: '#ff0000',
     palette: null,
-    paletteEditable: false
+    paletteEditable: false,
+    useAlphaInPalette: 'auto' //true|false|auto
 };
 
 const SL_BAR_SIZE = [200, 150],
@@ -86,7 +110,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                         </div>
                         <div class="a-color-picker-row a-color-picker-palette"></div>`;
 
-function parseElemnt(element, defaultElement, fallToDefault) {
+function parseElement(element, defaultElement, fallToDefault) {
     if (!element) {
         return defaultElement;
     } else if (element instanceof HTMLElement) {
@@ -96,11 +120,29 @@ function parseElemnt(element, defaultElement, fallToDefault) {
     } else if (typeof element == 'string') {
         return document.querySelector(element);
     } else if (element.jquery) {
-        return element.get(0); //TODO: da testare
+        return element.get(0); //TODO: da testare parseElement con jQuery
     } else if (fallToDefault) {
         return defaultElement;
     } else {
         return null;
+    }
+}
+
+function parseElements(selector) {
+    if (!selector) {
+        return [];
+    } else if (Array.isArray(selector)) {
+        return selector;
+    } else if (selector instanceof HTMLElement) {
+        return [selector];
+    } else if (selector instanceof NodeList) {
+        return [...selector];
+    } else if (typeof selector == 'string') {
+        return [...document.querySelectorAll(selector)];
+    } else if (selector.jquery) {
+        return selector.get(); //TODO: da testare parseElements con jQuery
+    } else {
+        return [];
     }
 }
 
@@ -158,87 +200,94 @@ function canvasHelper(canvas) {
             // console.timeEnd('findColor');
             return coord;
         }
-    }
+    };
 }
 
-function cssColorToRgb(color) {
-    if (color) {
-        const colorByName = COLOR_NAMES[color.toString().toLowerCase()];
-        // considero sia il formato esteso #RRGGGBB che quello corto #RGB
-        // provo a estrarre i valori da colorByName solo se questo è valorizzato, altrimenti uso direttamente color
-        const [, , , r, g, b, , rr, gg, bb] = /^\s*#?((([0-9A-F])([0-9A-F])([0-9A-F]))|(([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})))\s*$/i.exec(colorByName || color) || [];
-        if (r !== undefined) return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)];
-        else if (rr !== undefined) return [parseInt(rr, 16), parseInt(gg, 16), parseInt(bb, 16)];
-    }
-    return undefined;
-}
-
-function cssRgbToRgb(rgb) {
-    if (rgb) {
-        const [m, r, g, b] = /^rgb\((\d+),(\d+),(\d+)\)/i.exec(rgb) || [];
-        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255)] : undefined;
-    }
-    return undefined;
-}
-
-function cssRgbaToRgba(rgba) {
-    if (rgba) {
-        const [m, r, g, b, a] = /^rgba\((\d+),(\d+),(\d+),(\d*(.\d+)?)\)/i.exec(rgba) || [];
-        return m ? [limit(r, 0, 255), limit(g, 0, 255), limit(b, 0, 255), limit(a, 0, 1)] : undefined;
-    }
-    return undefined;
-}
-
-/**
- * Converte il colore in ingresso nel formato [r,g,b].
- * Color può assumere questi valori:
- * - array con [r,g,b] (viene ritornato così come è)
- * - nome del colore
- * - colore nel formato RGB HEX sia compatto che esteso
- *
- * @param      {string|array}    color   Il colore da convertire
- * @return     {array}  colore nel formato [r,g,b] o undefined se non valido
- */
-function parseColorToRgb(color) {
-    if (Array.isArray(color)) {
-        color = [limit(color[0], 0, 255), limit(color[1], 0, 255), limit(color[2], 0, 255)];
-        return color;
+function parseAttrBoolean(value, ifNull, ifEmpty) {
+    if (value === null) {
+        return ifNull;
+    } else if (/^\s*$/.test(value)) {
+        return ifEmpty;
+    } else if (/true|yes|1/i.test(value)) {
+        return true;
+    } else if (/false|no|0/i.test(value)) {
+        return false;
     } else {
-        return cssColorToRgb(color) || cssRgbToRgb(color);
+        return ifNull;
     }
 }
 
-function parseColorToRgba(color) {
-    if (Array.isArray(color)) {
-        color = [
-            limit(color[0], 0, 255),
-            limit(color[1], 0, 255),
-            limit(color[2], 0, 255),
-            limit(nvl(color[3], 1), 0, 1)
-        ];
-        return color;
-    } else {
-        const parsed = cssColorToRgb(color) || cssRgbToRgb(color) || cssRgbaToRgba(color);
-        if (parsed && parsed.length === 3) {
-            parsed.push(1);
+function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
+    // getAttribute() dovrebbe restituire null se l'attr non esiste, ma le vecchie specifiche prevedono il ritorno di una stringa vuota
+    //  quindi è meglio verificare l'esistenza dell'attr con hasAttribute()
+    if (element.hasAttribute(attrPrefix + 'show-hsl')) {
+        options.showHSL = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-hsl'), DEFAULT.showHSL, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-rgb')) {
+        options.showRGB = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-rgb'), DEFAULT.showRGB, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-hex')) {
+        options.showHEX = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-hex'), DEFAULT.showHEX, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'show-alpha')) {
+        options.showAlpha = parseAttrBoolean(element.getAttribute(attrPrefix + 'show-alpha'), DEFAULT.showAlpha, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'palette-editable')) {
+        options.paletteEditable = parseAttrBoolean(element.getAttribute(attrPrefix + 'palette-editable'), DEFAULT.paletteEditable, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'palette')) {
+        const palette = element.getAttribute(attrPrefix + 'palette');
+        switch (palette) {
+            case 'PALETTE_MATERIAL_500':
+                options.palette = PALETTE_MATERIAL_500;
+                break;
+            case 'PALETTE_MATERIAL_CHROME':
+            case '':
+                options.palette = PALETTE_MATERIAL_CHROME;
+                break;
+            default:
+                options.palette = palette.split(/[;\|]/);
+                break;
         }
-        return parsed;
+    }
+    if (element.hasAttribute(attrPrefix + 'color')) {
+        options.color = element.getAttribute(attrPrefix + 'color');
     }
 }
 
 class ColorPicker {
-    constructor(options) {
-        let container = parseElemnt(options);
-        if (container) {
-            // se viene passato al costrutto un elemento HTML uso le opzioni di default
-            this.options = Object.assign({}, DEFAULT, { attachTo: options });
+    constructor(container, options) {
+        if (!options) {
+            //controllo se siamo nel caso di options passato come primo parametro
+            if (container && isPlainObject(container)) {
+                // se non trovo options e container è un {} lo considero il vero options
+                this.options = Object.assign({}, DEFAULT, container);
+                container = parseElement(this.options.attachTo);
+            } else {
+                // altrimenti uso le opzioni di default
+                this.options = Object.assign({}, DEFAULT);
+                // nel caso non vengano proprio passati parametri, considero attachTo di default
+                container = parseElement(nvl(container, this.options.attachTo));
+            }
         } else {
-            // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
+            container = parseElement(container);
             this.options = Object.assign({}, DEFAULT, options);
-            container = parseElemnt(this.options.attachTo);
         }
 
+        /*         if (container) {
+                    // se viene passato al costrutto un elemento HTML uso le opzioni di default
+                    this.options = Object.assign({}, DEFAULT, { attachTo: options });
+                } else {
+                    // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
+                    this.options = Object.assign({}, DEFAULT, options);
+                    container = parseElement(this.options.attachTo);
+                }
+         */
         if (container) {
+            // le opzioni possono essere specificate come attributi dell'elemento contenitore
+            // quelle presenti sostituiranno le corrispondenti passate con il parametro options
+            copyOptionsFromElement(this.options, container);
+
             this.H = 0;
             this.S = 0;
             this.L = 0;
@@ -246,9 +295,15 @@ class ColorPicker {
             this.G = 0;
             this.B = 0;
             this.A = 1;
+            // andrà a contenere la palette di colori effettivamente usata
+            // compresi i colori aggiunti o rimossi dall'utente, non sarà modificabile dirretamente dall'utente
+            this.palette = { /*<color>: boolean*/ };
 
             // creo gli elementi HTML e li aggiungo al container
             this.element = document.createElement('div');
+            if (this.options.id) {
+                this.element.id = this.options.id;
+            }
             this.element.className = 'a-color-picker';
             // se falsy viene nascosto .a-color-picker-rgb
             if (!this.options.showRGB) this.element.className += ' hide-rgb';
@@ -291,7 +346,7 @@ class ColorPicker {
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
-            throw `Container not found: ${this.options.attachTo}`;
+            throw new Error(`Container not found: ${this.options.attachTo}`);
         }
     }
 
@@ -438,35 +493,41 @@ class ColorPicker {
     setupClipboard(input) {
         // l'input ricopre completamente la preview ma è totalmente trasparente
         input.title = 'click to copy';
-        input.addEventListener('click', e => {
+        input.addEventListener('click', () => {
             // non uso direttamente inputRGBHEX perchè potrebbe contenere un colore non valido
-            input.value = rgbToHex(this.R, this.G, this.B);
+            //  converto in hexcss4 quindi aggiunge anche il valore hex dell'alpha ma solo se significativo (0<=a<1)
+            input.value = parseColor([this.R, this.G, this.B, this.A], 'hexcss4');
             input.select();
             document.execCommand('copy');
         });
     }
 
     setPalette(row) {
+        // indica se considerare il canale alpha nei controlli della palette
+        // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
+        const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
         const palette = ensureArray(this.options.palette);
         if (this.options.paletteEditable || palette.length > 0) {
-            const addColorToPalette = (hex, refElement, fire) => {
+            const addColorToPalette = (color, refElement, fire) => {
                 // se il colore è già presente, non creo un nuovo <div> ma sposto quello esistente in coda
-                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + hex + '"]') ||
+                const el = row.querySelector('.a-color-picker-palette-color[data-color="' + color + '"]') ||
                     document.createElement('div');
                 el.className = 'a-color-picker-palette-color';
-                el.style.backgroundColor = hex;
-                el.setAttribute('data-color', hex);
-                el.title = hex;
+                el.style.backgroundColor = color;
+                el.setAttribute('data-color', color);
+                el.title = color;
                 row.insertBefore(el, refElement);
+                this.palette[color] = true;
                 if (fire) {
-                    this.onPaletteColorAdd(hex);
+                    this.onPaletteColorAdd(color);
                 }
             };
             const removeColorToPalette = (element, fire) => {
                 // se element è nullo elimino tutti i colori
                 if (element) {
                     row.removeChild(element);
+                    this.palette[element.getAttribute('data-color')] = false;
                     if (fire) {
                         this.onPaletteColorRemove(element.getAttribute('data-color'));
                     }
@@ -474,43 +535,59 @@ class ColorPicker {
                     row.querySelectorAll('.a-color-picker-palette-color[data-color]').forEach(el => {
                         row.removeChild(el);
                     });
+                    Object.keys(this.palette).forEach(k => {
+                        this.palette[k] = false;
+                    });
                     if (fire) {
                         this.onPaletteColorRemove();
                     }
                 }
             };
             // solo i colori validi vengono aggiunti alla palette
-            palette
-                .map(p => p && parseColorToRgb(p))
+            palette.map(c => parseColor(c, useAlphaInPalette ? 'rgbcss4' : 'hex'))
                 .filter(c => !!c)
-                .forEach(c => addColorToPalette(rgbToHex(...c)));
+                .forEach(c => addColorToPalette(c));
             // in caso di palette editabile viene aggiunto un pulsante + che serve ad aggiungere il colore corrente
             if (this.options.paletteEditable) {
                 const el = document.createElement('div');
                 el.className = 'a-color-picker-palette-color a-color-picker-palette-add';
                 el.innerHTML = '+';
                 row.appendChild(el);
-            }
-            row.addEventListener('click', (e) => {
-                if (/a-color-picker-palette-add/.test(e.target.className)) {
-                    if (e.shiftKey) {
-                        // TODO: rimuovere tutti i colori (?)
-                        removeColorToPalette(null, true);
-                    } else {
-                        // aggiungo il colore e triggero l'evento 'oncoloradd'
-                        addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                // gestisco eventi di aggiunta/rimozione/selezione colori
+                row.addEventListener('click', (e) => {
+                    if (/a-color-picker-palette-add/.test(e.target.className)) {
+                        if (e.shiftKey) {
+                            // rimuove tutti i colori
+                            removeColorToPalette(null, true);
+                        } else {
+                            // aggiungo il colore e triggero l'evento 'oncoloradd'
+                            if (useAlphaInPalette) {
+                                addColorToPalette(parseColor([this.R, this.G, this.B, this.A], 'rgbcss4'), e.target, true);
+                            } else {
+                                addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
+                            }
+                        }
+                    } else if (/a-color-picker-palette-color/.test(e.target.className)) {
+                        if (e.shiftKey) {
+                            // rimuovo il colore e triggero l'evento 'oncolorremove'
+                            removeColorToPalette(e.target, true);
+                        } else {
+                            // visto che il colore letto da backgroundColor risulta nel formato rgb()
+                            // devo usare il valore hex originale
+                            this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
+                        }
                     }
-                } else if (/a-color-picker-palette-color/.test(e.target.className)) {
-                    if (e.shiftKey) {
-                        // rimuovo il colore e triggero l'evento 'oncolorremove'
-                        removeColorToPalette(e.target, true);
-                    } else {
+                });
+            } else {
+                // gestisco il solo evento di selezione del colore
+                row.addEventListener('click', (e) => {
+                    if (/a-color-picker-palette-color/.test(e.target.className)) {
                         // visto che il colore letto da backgroundColor risulta nel formato rgb()
                         // devo usare il valore hex originale
                         this.onValueChanged(COLOR, e.target.getAttribute('data-color'));
                     }
-                }
-            });
+                });
+            }
         } else {
             // la palette con i colori predefiniti viene nasconsta se non ci sono colori
             row.style.display = 'none';
@@ -611,7 +688,7 @@ class ColorPicker {
                 this.updateInputRGB(this.R, this.G, this.B);
                 break;
             case COLOR:
-                [this.R, this.G, this.B, this.A] = parseColorToRgba(value) || [0, 0, 0, 1];
+                [this.R, this.G, this.B, this.A] = parseColor(value, 'rgba') || [0, 0, 0, 1];
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
@@ -634,7 +711,8 @@ class ColorPicker {
         } else {
             this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
         }
-        this.onchange && this.onchange();
+        // this.onchange && this.onchange();
+        this.onchange && this.onchange(this.preview.style.backgroundColor);
     }
 
     onPaletteColorAdd(color) {
@@ -681,15 +759,40 @@ class ColorPicker {
     }
 }
 
-function wrapEventCallback(ctrl, picker, eventName, cb) {
-    if (cb && typeof cb === 'function') {
-        picker['on' + eventName] = function() {
-            cb.call(null, ctrl, ...arguments);
-        };
-    } else {
-        picker['on' + eventName] = null;
+class EventEmitter {
+    constructor(name) {
+        this.name = name;
+        this.listeners = [];
+    }
+    on(callback) {
+        if (callback) {
+            this.listeners.push(callback);
+        }
+    }
+    off(callback) {
+        if (callback) {
+            this.listeners = this.listeners.filter(cb => cb !== callback);
+        } else {
+            this.listeners = [];
+        }
+    }
+    emit(args, _this) {
+        const listeners = this.listeners.slice(0);
+        for (let ii = 0; ii < listeners.length; ii++) {
+            listeners[ii].apply(_this, args);
+        }
     }
 }
+
+// function wrapEventCallback(ctrl, picker, eventName, cb) {
+//     if (cb && typeof cb === 'function') {
+//         picker['on' + eventName] = () => {
+//             cb.call(null, ctrl, ...arguments);
+//         };
+//     } else {
+//         picker['on' + eventName] = null;
+//     }
+// }
 
 /**
  * Crea il color picker.
@@ -700,17 +803,26 @@ function wrapEventCallback(ctrl, picker, eventName, cb) {
  * - showHEX: indica se mostrare i campi per la definizione del colore in formato RGB HEX (default true)
  * - color: colore iniziale (default '#ff0000')
  *
- * @param      {Object}          container Un elemento HTML che andrà a contenere il picker
- * 
- * oppure
- * 
- * @param      {Object}          options  Le opzioni di creazione
+ * @param      {Object}          element (opzionale) Un elemento HTML che andrà a contenere il picker
+ * @param      {Object}          options  (opzionale) Le opzioni di creazione
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
-function createPicker(options) {
-    const picker = new ColorPicker(options);
-    const cbEvents = {};
-    return {
+function createPicker(element, options) {
+    const picker = new ColorPicker(element, options);
+    // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
+    // quando il picker triggera un evento, 
+    //  il "controller" emette lo stesso evento tramite il rispettivo EventEmitter
+    const cbEvents = {
+        change: new EventEmitter('change'),
+        coloradd: new EventEmitter('coloradd'),
+        colorremove: new EventEmitter('colorremove')
+    };
+    let isChanged = true,
+        // memoize per la proprietà all
+        memAll = {};
+    // non permetto l'accesso diretto al picker
+    // ma ritorno un "controller" per eseguire solo alcune azioni (get/set colore, eventi, etc.)
+    const controller = {
         get element() {
             return picker.element;
         },
@@ -734,7 +846,8 @@ function createPicker(options) {
         },
 
         get rgbhex() {
-            return rgbToHex(picker.R, picker.G, picker.B);
+            // return rgbToHex(picker.R, picker.G, picker.B);
+            return this.all.hex;
         },
 
         get rgba() {
@@ -756,16 +869,18 @@ function createPicker(options) {
         },
 
         /**
-         * Ritorna il colore corrente nel formato RGB HEX.
+         * Ritorna il colore corrente nel formato RGB HEX, 
+         * oppure nella notazione rgba() con alpha != 1.
          *
-         * @return     {string}  colorre corrente (es: #ffdd00)
+         * @return     {string}  colore corrente
          */
         get color() {
-            if (picker.A === 1) {
-                return this.rgbhex;
-            } else {
-                return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
-            }
+            // if (picker.A === 1) {
+            //     return this.rgbhex;
+            // } else {
+            //     return `rgba(${picker.R},${picker.G},${picker.B},${picker.A})`;
+            // }
+            return this.all.toString();
         },
 
         /**
@@ -781,46 +896,167 @@ function createPicker(options) {
             picker.onValueChanged(COLOR, color);
         },
 
+        /**
+         * @return  {Object}    oggetto contenente il colore corrente in tutti i formati noti a parseColor()
+         */
+        get all() {
+            if (isChanged) {
+                const rgba = [picker.R, picker.G, picker.B, picker.A];
+                // la conversione in stringa segue le regole della proprietà color
+                const ts = picker.A < 1 ? `rgba(${picker.R},${picker.G},${picker.B},${picker.A})` : rgbToHex(...rgba);
+                // passando un oggetto a parseColor come secondo parametro, lo riempirà con tutti i formati disponibili
+                memAll = parseColor(rgba, memAll);
+                memAll.toString = () => ts;
+                isChanged = false;
+            }
+            // devo per forza passare una copia, altrimenti memAll può esssere modificato dall'esterno
+            return Object.assign({}, memAll);
+        },
+
+        /**
+         * @deprecated
+         */
         get onchange() {
-            return cbEvents['change'];
+            return cbEvents.change && cbEvents.change.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('change', cb)
+         */
         set onchange(cb) {
-            wrapEventCallback(this, picker, 'change', cb);
-            cbEvents['change'] = cb;
+            // wrapEventCallback(this, picker, 'change', cb);
+            // cbEvents['change'] = cb;
+            this.off('change').on('change', cb);
         },
 
+        /**
+         * @deprecated
+         */
         get oncoloradd() {
-            return cbEvents['coloradd'];
+            return cbEvents.coloradd && cbEvents.coloradd.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('coloradd', cb)
+         */
         set oncoloradd(cb) {
-            wrapEventCallback(this, picker, 'coloradd', cb);
-            cbEvents['coloradd'] = cb;
+            // wrapEventCallback(this, picker, 'coloradd', cb);
+            // cbEvents['coloradd'] = cb;
+            this.off('coloradd').on('coloradd', cb);
         },
 
+        /**
+         * @deprecated
+         */
         get oncolorremove() {
-            return cbEvents['colorremove'];
+            return cbEvents.colorremove && cbEvents.colorremove.listeners[0];
         },
 
+        /**
+         * @deprecated  usare on('colorremove', cb)
+         */
         set oncolorremove(cb) {
-            wrapEventCallback(this, picker, 'colorremove', cb);
-            cbEvents['colorremove'] = cb;
-        }
+            // wrapEventCallback(this, picker, 'colorremove', cb);
+            // cbEvents['colorremove'] = cb;
+            this.off('colorremove').on('colorremove', cb);
+        },
 
+        /**
+         * Ritorna la palette dei colori.
+         *
+         * @return     {Array}  array di colori in formato hex
+         */
+        get palette() {
+            return Object.keys(picker.palette).filter(k => picker.palette[k]);
+        },
+
+        on(eventName, cb) {
+            if (eventName) {
+                cbEvents[eventName] && cbEvents[eventName].on(cb);
+            }
+            return this;
+        },
+
+        off(eventName, cb) {
+            if (eventName) {
+                cbEvents[eventName] && cbEvents[eventName].off(cb);
+            }
+            return this;
+        }
     };
+    // ogni volta che viene triggerato un evento, uso il corrispettivo EventEmitter per propagarlo a tutte le callback associate
+    //  le callback vengono richiamate con il "controller" come "this" 
+    //  e il primo parametro è sempre il "controller" seguito da tutti i parametri dell'evento
+    picker.onchange = (...args) => {
+        isChanged = true; // così le proprietà in lettura dovranno ricalcolare il loro valore
+        cbEvents.change.emit([controller, ...args], controller);
+    };
+    picker.oncoloradd = (...args) => {
+        cbEvents.coloradd.emit([controller, ...args], controller);
+    };
+    picker.oncolorremove = (...args) => {
+        cbEvents.colorremove.emit([controller, ...args], controller);
+    };
+    // TOOD: trovare un altro nome a ctrl, troppo comune
+    // TODO: definirla come readonly
+    picker.element.ctrl = controller;
+    return controller;
+}
+
+/**
+ * 
+ * @param {any} selector 
+ * @param {object} options 
+ * @return  un Array di controller così come restituito da createPicker()
+ */
+function from(selector, options) {
+    // TODO: gestire eventuali errori nella creazione del picker
+    const pickers = parseElements(selector).map((el, index) => {
+        const picker = createPicker(el, options);
+        picker.index = index;
+        return picker;
+    });
+    pickers.on = function (eventName, cb) {
+        pickers.forEach(picker => picker.on(eventName, cb));
+        return this;
+    };
+    pickers.off = function (eventName) {
+        pickers.forEach(picker => picker.off(eventName));
+        return this;
+    };
+    return pickers;
+}
+
+if (typeof window !== 'undefined') {
+    // solo in ambiente browser inserisco direttamente nella pagina html il css
+    //  per sicurezza controllo che non sia già presente
+    if (!document.querySelector('head>style[data-source="a-color-picker"]')) {
+        const css = require('./acolorpicker.css').toString();
+        const style = document.createElement('style');
+        style.setAttribute('type', 'text/css');
+        style.setAttribute('data-source', 'a-color-picker');
+        style.innerHTML = css;
+        // TODO: verificare che esista <head>
+        document.querySelector('head').appendChild(style);
+    }
 }
 
 export {
     createPicker,
+    from,
     parseColorToRgb,
     parseColorToRgba,
+    parseColorToHsl,
+    parseColorToHsla,
+    parseColor,
     rgbToHex,
     hslToRgb,
     rgbToHsl,
     rgbToInt,
     intToRgb,
+    getLuminance,
     COLOR_NAMES,
     PALETTE_MATERIAL_500,
-    PALETTE_MATERIAL_CHROME
+    PALETTE_MATERIAL_CHROME,
+    VERSION
 };

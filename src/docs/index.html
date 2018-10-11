@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>a-color-picker</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="narsenico">
+	<meta name="description" content="A color picker for web app">
+</head>
+
+<body>
+	<!-- <div class="picker" acp-show-alpha acp-palette="red|yellow" acp-palette-editable></div> -->
+	<header class="shadow darken flexrow">
+		<div class="flexcol-1">
+			<a href="https://github.com/narsenico" title="narsenico github repositories">
+				<img alt="avatar" class="avatar" src="https://www.gravatar.com/avatar/5e6f1401ca340dee16dc70107619b400">
+			</a>
+		</div>
+		<div class="title flexcol-2">
+			<h1 class="logo">
+				a-color-picker | for web app
+			</h1>
+			<div class="badges">
+				<a href="https://badge.fury.io/js/a-color-picker">
+					<img src="https://badge.fury.io/js/a-color-picker.svg" alt="npm version" height="18">
+				</a>
+				<a href="https://codepen.io/narsenico/pen/xPxNeE">
+					<img src="https://img.shields.io/badge/demo-codepen-0ebeff.svg" alt="codepen" height="18">
+				</a>
+				<iframe src="https://ghbtns.com/github-btn.html?user=narsenico&repo=a-color-picker&type=star&count=true" frameborder="0"
+				 scrolling="0" width="170px" height="20px"></iframe>
+			</div>
+		</div>
+	</header>
+	<div class="content flexrow">
+		<nav class="flexcol-1">
+			<ul>
+				<li>
+					<a href="#install">Install</a>
+				</li>
+				<li>
+					<a href="#create_a_picker">Create a picker</a>
+				</li>
+				<li>
+					<a href="#choose_which_controls_to_show">Choose which controls to show</a>
+				</li>
+				<li>
+					<a href="#palette">Palette</a>
+				</li>
+				<li>
+					<a href="#events">Events</a>
+				</li>
+				<li>
+					<a href="#tips">Tips</a>
+				</li>
+				<li>
+					<a href="#api">API</a>
+					<ul>
+						<li>
+							<a href="#api_acolorpicker_createpicker">.createPicker</a>
+						</li>
+						<li>
+							<a href="#api_acolorpicker_from">.from</a>
+						</li>
+						<li>
+							<a href="#api_acolorpicker_parsecolor">.parseColor</a>
+						</li>
+						<li>
+							<a href="#api_picker_controller">ACPController</a>
+						</li>
+						<li>
+							<a href="#api_options">options</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+		<div class="pens flexcol-2">
+			<section class="shadow">
+				<a name="install"></a>
+				<h3>Install</h3>
+				<ul>
+					<li>
+						<code>npm install a-color-picker</code>
+					</li>
+					<li>
+						<code>bower install --save a-color-picker</code>
+					</li>
+					<li>a-color-picker is available on
+						<a href="https://www.jsdelivr.com/package/npm/a-color-picker">jsdelivr</a>
+					</li>
+				</ul>
+			</section>
+			<section class="shadow">
+				<a name="create_a_picker"></a>
+				<h3>Create a picker</h3>
+				<p>Define an HTML element to contain the picker and use
+					<code>AColorPicker.<span class="prop">from</span>(<span class="par">selector</span>)</code> to create it.
+					<br>The default picker is created with HSL, RGB and HEX controls.
+					<br>The
+					<code>acp-color</code> attribute is used to set the initial value.</p>
+				<p data-height="355" data-theme-id="1" data-slug-hash="WJoQBm" data-default-tab="html,result" data-user="narsenico" data-embed-version="2"
+				 data-pen-title="WJoQBm" class="codepen">See the Pen
+					<a href="https://codepen.io/narsenico/pen/WJoQBm/">WJoQBm</a> by Caldi Gianfranco (
+					<a href="https://codepen.io/narsenico">@narsenico</a>) on
+					<a href="https://codepen.io">CodePen</a>.</p>
+			</section>
+			<section class="shadow">
+				<a name="choose_which_controls_to_show"></a>
+				<h3>Choose which controls to show</h3>
+				<p>Show or hide controls through attributes.
+					<br>
+					<code>acp-show-*</code> attributes accepts
+					<code>yes/no/true/false</code> values. Attributes without value are considered
+					<code>true</code>.
+				</p>
+				<p data-height="326" data-theme-id="1" data-slug-hash="WJorZe" data-default-tab="html,result" data-user="narsenico" data-embed-version="2"
+				 data-pen-title="a-color-picker demo attr" class="codepen">See the Pen
+					<a href="https://codepen.io/narsenico/pen/WJorZe/">a-color-picker demo attr</a> by Caldi Gianfranco (
+					<a href="https://codepen.io/narsenico">@narsenico</a>) on
+					<a href="https://codepen.io">CodePen</a>.</p>
+			</section>
+			<section class="shadow">
+				<a name="palette"></a>
+				<h3>Palette</h3>
+				<p>Show a palette of colors using the
+					<code>acp-palette</code> attribute.
+					<br> Set a list of colors (named color, hex rgb, rgb(), rgba(), hsl(), hsla()) pipe separated or a predefined palette (PALETTE_MATERIAL_500,
+					PALETTE_MATERIAL_CHROME).
+					<br> The
+					<code>acp-palette-editable</code> attribute can be set to allow the user to change the palette.</p>
+				<p data-height="434" data-theme-id="1" data-slug-hash="NMbxoq" data-default-tab="html,result" data-user="narsenico" data-embed-version="2"
+				 data-pen-title="a-color-picker demo palette editable" class="codepen">See the Pen
+					<a href="https://codepen.io/narsenico/pen/NMbxoq/">a-color-picker demo palette editable</a> by Narsenico (
+					<a href="https://codepen.io/narsenico">@narsenico</a>) on
+					<a href="https://codepen.io">CodePen</a>.</p>
+			</section>
+			<section class="shadow">
+				<a name="events"></a>
+				<h3>Events</h3>
+				<p>
+					To attach an event use
+					<code>on</code> method and
+					<code>off</code> to detach it.
+					<pre class="eg"><code>AColorPicker.<span class="prop">from</span>(<span class="par">selector</span>)
+    .on(<span class="par">eventName</span>, <span class="par">callback</span>)
+    .off(<span class="par">eventName</span>)</code></pre>
+					<table class="detail hover-on-body">
+						<thead>
+							<tr>
+								<th>Event name</th>
+								<th>Callback parameters</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td rowspan="2">change</td>
+								<td>
+									<code><span class="prop">picker</span></code>
+								</td>
+								<td class="explanation">target</td>
+							</tr>
+							<tr>
+								<td>
+									<code><span class="prop">color</span></code>
+								</td>
+								<td class="explanation">selected color</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">coloradd</td>
+								<td>
+									<code><span class="prop">picker</span></code>
+								</td>
+								<td class="explanation">target</td>
+							</tr>
+							<tr>
+								<td>
+									<code><span class="prop">color</span></code>
+								</td>
+								<td class="explanation">color added</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">colorremove</td>
+								<td>
+									<code><span class="prop">picker</span></code>
+								</td>
+								<td class="explanation">target</td>
+							</tr>
+							<tr>
+								<td>
+									<code><span class="prop">color</span></code>
+								</td>
+								<td class="explanation">color removed or null if all colors are removed</td>
+							</tr>
+						</tbody>
+					</table>
+				</p>
+			</section>
+			<section class="shadow">
+				<a name="tips"></a>
+				<h3>Tips</h3>
+				<p>
+					<ul>
+						<li>Click on the preview circle to copy current color</li>
+						<li>Shift-click on a palette color to remove it</li>
+						<li>Shift-click the '+' button to remove all the palette colors</li>
+					</ul>
+				</p>
+			</section>
+			<section class="shadow">
+				<a name="api"></a>
+				<h3>API</h3>
+				<section class="mark">
+					<a name="api_acolorpicker_createpicker"></a>
+					<code>AColorPicker.<span class="prop">createPicker</span>(<span class="par">element</span>, <span class="par">options</span>)</code>
+					<br>
+					<code>AColorPicker.<span class="prop">createPicker</span>(<span class="par">options</span>)</code>
+					<p>Create a color picker.</p>
+					<table class="detail hover-on-row">
+						<thead>
+							<tr>
+								<th>Parameter</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>element</td>
+								<td class="explanation">HTMLElement, jQuery object or css selector string.
+									<br> Optional: if not defined,
+									<code>options.<span class="prop">attachTo</span></code> is used.</td>
+							</tr>
+							<tr>
+								<td>options</td>
+								<td class="explanation">See
+									<a href="#api_options">options</a>
+									<br> Optional only if element is defined.
+								</td>
+							</tr>
+						</tbody>
+						<thead>
+							<tr>
+								<th>Return</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="2" class="explanation">A
+									<a href="#api_picker_controller">ACPController</a> instance
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="mark">
+					<a name="api_acolorpicker_from"></a>
+					<code>AColorPicker.<span class="prop">from</span>(<span class="par">selector</span>, <span class="par">options</span>)</code>
+					<p>Create one or more color pickers.</p>
+					<table class="detail hover-on-row">
+						<thead>
+							<tr>
+								<th>Parameter</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>selector</td>
+								<td class="explanation">HTMLElement, NodeList, jQuery object or css selector string.</td>
+							</tr>
+							<tr>
+								<td>options</td>
+								<td class="explanation">Optional, see
+									<a href="#api_options">options</a>
+								</td>
+							</tr>
+						</tbody>
+						<thead>
+							<tr>
+								<th>Return</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="2" class="explanation">An array of
+									<a href="#api_picker_controller">ACPController</a>. This array has helper methods
+									<code>on</code> and
+									<code>off</code> to attach/detach
+									<a href="#events">events</a> to all items.
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="mark">
+					<a name="api_acolorpicker_parsecolor"></a>
+					<code>AColorPicker.<span class="prop">parseColor</span>(<span class="par">color</span>, <span class="par">outFormat</span>)</code>
+					<p>Parse color in input and return formatted value.</p>
+					<table class="detail hover-on-row">
+						<thead>
+							<tr>
+								<th>Parameter</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>color</td>
+								<td class="explanation">Value to be parsed
+									<br>Accepts color name, rgb array, hex rgb, rgb(), rgba(), hsl(), hsla()</td>
+							</tr>
+							<tr>
+								<td>outFormat</td>
+								<td class="explanation">Output format, one of: rgb, rgbcss, rgbcss4, rgba, rgbacss, hsl, hslcss, hslcss4, hsla, hslacss, hex, hexcss4.
+									<br> If outFormat is a plain object, will be filled with all formats as properties.
+								</td>
+							</tr>
+						</tbody>
+						<thead>
+							<tr>
+								<th>Return</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="2" class="explanation">Formatted color or
+									<code><span class="par">undefined</span></code> if not recognized.
+									<pre class="eg" title="e.g."><code>AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>");<span class="comment">           // return [255, 0, 0]</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">rgb</span>");<span class="comment">    // return [255, 0, 0]</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">rgbcss</span>");<span class="comment"> // return "rgb(255, 0, 0)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">rgbcss4</span>");<span class="comment">// return "rgb(255, 0, 0, 1)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">rgba</span>");<span class="comment">   // return [255, 0, 0, 1]</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">rgbacss</span>");<span class="comment">// return "rgba(255, 0, 0, 1)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hsl</span>");<span class="comment">    // return [0,100,50]</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hslcss</span>");<span class="comment"> // return "hsl(0, 100, 50)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hslcss4</span>");<span class="comment">// return "hsl(0, 100, 50, 1)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hsla</span>");<span class="comment">   // return [0, 100, 50, 1]</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hslacss</span>");<span class="comment">// return "hsla(0, 100, 50, 1)"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hex</span>");<span class="comment">    // return "#ff0000"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", "<span class="par">hexcss4</span>");<span class="comment">// return "#ff0000ff"</span>
+AColorPicker.<span class="prop">parseColor</span>("<span class="par">red</span>", <span class="par">{ }</span>);<span class="comment">// return { "rgb":[255,0,0], ... }</span>
+</code></pre>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="mark">
+					<a name="api_picker_controller"></a>
+					<code>ACPController</code>
+					<p>Can access picker properties and handle events.</p>
+					<table class="detail hover-on-body">
+						<thead>
+							<tr>
+								<th colspan="2">Property</th>
+								<th colspan="2">Type</th>
+							</tr>
+						</thead>
+						<!-- <tbody>
+							<tr>
+								<td rowspan="2">rgb</td>
+								<td class="explanation">Get or set the current color in RGB array format
+								</td>
+								<td class="explanation">Array
+									<br>[R, G, B]</td>
+								<td class="explanation">R (red), G (green), B (blue) are number between 0 and 255</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">rgb</span> = [<span class="par">0, 128, 0</span>];</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">rgba</td>
+								<td class="explanation">Get or set the current color in RGBA array format
+								</td>
+								<td class="explanation">Array
+									<br>[R, G, B, A]</td>
+								<td class="explanation">R (red), G (green), B (blue) are numbers between 0 and 255
+									<br>A (alpha) is a number between 0 (transparent) and 1 (100%, full opacity)</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">rgba</span> = [<span class="par">205, 220, 57, 1</span>]; <span class="comment"> // alpha 100% full opacity</span>
+picker.<span class="prop">rgba</span> = [<span class="par">205, 220, 57, .5</span>]; <span class="comment">// alpha 50% opacity</span>
+</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">hsl</td>
+								<td class="explanation">Get or set the current color in HSL array format
+								</td>
+								<td class="explanation">Array
+									<br>[H, S, L]</td>
+								<td class="explanation">H (hue) is an angle with value between 0 and 360
+									<br> S (saturation) and L (lightness) are numbers between 0 and 100</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">hsl</span> = [<span class="par">120, 100, 125</span>];</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">hsla</td>
+								<td class="explanation">Get or set the current color in HSLA array format
+								</td>
+								<td class="explanation">Array
+									<br>[H, S, L, A]</td>
+								<td class="explanation">H (hue) is an angle with value between 0 and 360
+									<br> S (saturation) and L (lightness) are numbers between 0 and 100
+									<br>A (alpha) is a number between 0 (transparent) and 1 (100%, full opacity)</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">hsla</span> = [<span class="par">120, 100, 125, 1</span>]; <span class="comment"> // alpha 100% full opacity</span>
+picker.<span class="prop">hsla</span> = [<span class="par">120, 100, 125, .5</span>]; <span class="comment">// alpha 50% opacity</span>
+</code></pre>
+								</td>
+							</tr>
+						</tbody> -->
+						<tbody>
+							<tr>
+								<td rowspan="3">color</td>
+								<td rowspan="2" class="explanation">Get or set the current color</td>
+								<td rowspan="2" class="explanation">String|Array</td>
+								<td class="explanation">Accept: named color, hex rgb, rgb(), rgba(), hsl(), hsla()</td>
+							</tr>
+							<tr>
+								<td class="explanation">Return: hex rgb or rgba() if alpha != 1</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code><span class="comment">// set</span>
+picker.<span class="prop">color</span> = [<span class="par">205, 220, 57</span>]; <span class="comment">           // [R, G, B]</span>
+picker.<span class="prop">color</span> = [<span class="par">205, 220, 57, .5</span>]; <span class="comment">       // [R, G, B, A]</span>
+picker.<span class="prop">color</span> = "<span class="par">yellow</span>"; <span class="comment">                 // named color</span>
+picker.<span class="prop">color</span> = "<span class="par">#ffdd00</span>"; <span class="comment">                // hex rgb</span>
+picker.<span class="prop">color</span> = "<span class="par">#ffdd00ff</span>"; <span class="comment">              // hex rgba</span>
+picker.<span class="prop">color</span> = "<span class="par">#fd0</span>"; <span class="comment">                   // short hex rgb</span>
+picker.<span class="prop">color</span> = "<span class="par">#fd0f</span>"; <span class="comment">                  // short hex rgba</span>
+picker.<span class="prop">color</span> = "<span class="par">rgb(205, 220, 57)</span>"; <span class="comment">      // rgb() notation</span>
+picker.<span class="prop">color</span> = "<span class="par">rgb(205, 220, 57, .5)</span>"; <span class="comment">  // rgb() notation + alpha (css level 4)</span>
+picker.<span class="prop">color</span> = "<span class="par">rgba(205, 220, 57, .5)</span>"; <span class="comment"> // rgba() notation</span>
+picker.<span class="prop">color</span> = "<span class="par">hsl(120, 100, 125)</span>"; <span class="comment">     // hsl() notation</span>
+picker.<span class="prop">color</span> = "<span class="par">hsl(120, 100, 125, .5)</span>"; <span class="comment"> // hsl() notation + alpha (css level 4)</span>
+picker.<span class="prop">color</span> = "<span class="par">hsla(120, 100, 125, .5)</span>"; <span class="comment">// hsla() notation</span>
+<span class="comment">// get</span>
+picker.<span class="prop">color</span>; <span class="comment">// return "#ffdd00"</span>
+picker.<span class="prop">color</span>; <span class="comment">// return "rgba(205, 220, 57, .5)" if alpha is != 1</span>
+<span class="comment">// formatting color (see <a href="#api_acolorpicker_parsecolor">parseColor</a> for detail)</span>
+AColorPicker.<span class="prop">parseColor</span>(picker.<span class="prop">color</span>, <span class="par">"hsl"</span>); <span class="comment">// return "hsl(120, 100, 125)"</span>
+							</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">palette</td>
+								<td class="explanation">Get the current palette
+								</td>
+								<td class="explanation">Array</td>
+								<td class="explanation">Array of colors in hex format</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">palette</span>; <span class="comment">// return ["#ff0000", "#00ff00"]</span></code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<thead>
+							<tr>
+								<th colspan="2">Function</th>
+								<th colspan="2">Parameters</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td rowspan="3">on</td>
+								<td rowspan="2" class="explanation">Attach an event to the controller.</td>
+								<td class="explanation">eventName</td>
+								<td rowspan="2" class="explanation">See
+									<a href="#events">events</a> for detail</td>
+							</tr>
+							<tr>
+								<td class="explanation">callback</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">on</span>("<span class="par">change</span>", (<span class="par">picker</span>, <span class="par">color</span>) => { });</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">off</td>
+								<td class="explanation">Detach an event from the controller.</td>
+								<td class="explanation">eventName</td>
+								<td class="explanation">See
+									<a href="#events">events</a> for detail</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">off</span>("<span class="par">change</span>");</code></pre>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section class="mark">
+					<a name="api_options"></a>
+					<code>options</code>
+					<p></p>
+					<table class="detail hover-on-row">
+						<thead>
+							<tr>
+								<th>Property</th>
+								<th></th>
+								<th>Type</th>
+								<th>Default</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>attachTo</td>
+								<td class="explanation">Where to attach the picker top element, can be HTMLElement, jQuery object or css selector</td>
+								<td class="explanation">String|Object</td>
+								<td class="explanation">body</td>
+							</tr>
+							<tr>
+								<td>showHSL</td>
+								<td class="explanation">If falsy hide the HSL inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showRGB</td>
+								<td class="explanation">If falsy hide the RGB inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showHEX</td>
+								<td class="explanation">If falsy hide the RGB HEX inputs</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">true</td>
+							</tr>
+							<tr>
+								<td>showAlpha</td>
+								<td class="explanation">If truly show control to change opacity</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">false</td>
+							</tr>
+							<tr>
+								<td>color</td>
+								<td class="explanation">Initial color</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">#ff0000</td>
+							</tr>
+							<tr>
+								<td>palette</td>
+								<td class="explanation">Array of predefined colors.
+									<br>Each element can be color name, rgb array, hex rgb, rgb(), rgba(), hsl(), hsla()</td>
+								<td class="explanation">Array</td>
+								<td class="explanation">null</td>
+							</tr>
+							<tr>
+								<td>paletteEditable</td>
+								<td class="explanation">If truly make the palette editable</td>
+								<td class="explanation">Boolean</td>
+								<td class="explanation">false</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+			</section>
+		</div>
+	</div>
+	<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+</body>
+
+</html>
