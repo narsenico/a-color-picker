@@ -150,25 +150,111 @@
                 done();
             });
             it('createPicker with id', () => {
-                expect(AColorPicker.createPicker({id:'myColorPicker0'}).element.id).to.be.equal('myColorPicker0');
+                expect(AColorPicker.createPicker({ id: 'myColorPicker0' }).element.id).to.be.equal('myColorPicker0');
             });
             it('createPicker with initial color', () => {
                 const c = AColorPicker.parseColor('yellow', 'hex');
-                expect(AColorPicker.createPicker({color:'yellow'}).color).to.be.equal(c);
+                expect(AColorPicker.createPicker({ color: 'yellow' }).color).to.be.equal(c);
             });
             it('retrieve controller from picker element', () => {
-                const a = AColorPicker.createPicker({id:'myColorPicker1'});
+                const a = AColorPicker.createPicker({ id: 'myColorPicker1' });
                 const c = document.querySelector('#myColorPicker1').ctrl;
                 expect(a).to.be.equal(c);
             });
             it('createPicker with enabled alpha channel in palette', () => {
-                const a = AColorPicker.createPicker({ id: 'myColorPicker2', 
-                    showAlpha: true, 
+                const a = AColorPicker.createPicker({
+                    id: 'myColorPicker2',
+                    showAlpha: true,
                     useAlphaInPalette: 'auto',
-                    palette: ['rgba(255, 0, 0, .5)'] });
+                    palette: ['rgba(255, 0, 0, .5)']
+                });
                 const c1 = AColorPicker.parseColor(a.element.querySelector('.a-color-picker-palette-color').style.backgroundColor, 'hexcss4');
                 const c2 = AColorPicker.parseColor('rgba(255, 0, 0, .5)', 'hexcss4');
                 expect(c1).to.be.equal(c2);
+            });
+            it('createPicker with only RGB', () => {
+                const a = AColorPicker.createPicker({
+                    showRGB: true, showHSL: false, showHEX: false, showAlpha: false
+                });
+                expect(a.element.querySelector('.a-color-picker-rgb')).to.not.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-hsl')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-rgbhex')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-alpha')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-palette')).to.be.equal(null);
+                expect(a.element.querySelectorAll('input[nameref]').length).to.be.equal(3);
+            });
+            it('createPicker with only HSL', () => {
+                const a = AColorPicker.createPicker({
+                    showRGB: false, showHSL: true, showHEX: false, showAlpha: false
+                });
+                expect(a.element.querySelector('.a-color-picker-rgb')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-hsl')).to.not.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-rgbhex')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-alpha')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-palette')).to.be.equal(null);
+                expect(a.element.querySelectorAll('input[nameref]').length).to.be.equal(3);
+            });
+            it('createPicker with only HEX', () => {
+                const a = AColorPicker.createPicker({
+                    showRGB: false, showHSL: false, showHEX: true, showAlpha: false
+                });
+                expect(a.element.querySelector('.a-color-picker-rgb')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-hsl')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-rgbhex')).to.not.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-alpha')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-palette')).to.be.equal(null);
+                expect(a.element.querySelectorAll('input[nameref]').length).to.be.equal(1);
+            });
+            it('createPicker with only palette editable', () => {
+                const a = AColorPicker.createPicker({
+                    showRGB: false, showHSL: false, showHEX: false, showAlpha: false,
+                    palette: 'PALETTE_MATERIAL_CHROME',
+                    paletteEditable: true
+                });
+                expect(a.element.querySelector('.a-color-picker-rgb')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-hsl')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-rgbhex')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-alpha')).to.be.equal(null);
+                expect(a.element.querySelector('.a-color-picker-palette')).to.not.be.equal(null);
+                expect(a.element.querySelectorAll('input[nameref]').length).to.be.equal(0);
+            });
+        });
+        describe('Other functions', () => {
+            it('submit a form: picker\'s inputs must not be sent', () => {
+                const form = document.createElement('FORM');
+                const inputColor = document.createElement('INPUT');
+                const inputSubmit = document.createElement('INPUT');
+                const divColorPicker = document.createElement('DIV');
+                const iframe = document.createElement('iframe');
+                form.action = '/';
+                form.target = 'result';
+                form.method = 'GET';
+                inputColor.name = 'color';
+                inputColor.id = 'color';
+                inputColor.value = 'red';
+                inputSubmit.type = 'submit';
+                divColorPicker.className = 'colorPicker';
+                iframe.name = 'result';
+                iframe.style.display = 'none';
+                form.appendChild(inputColor);
+                form.appendChild(inputSubmit);
+                form.appendChild(divColorPicker);
+                document.body.appendChild(form);
+                document.body.appendChild(iframe);
+                AColorPicker.createPicker({
+                    attachTo: 'div.colorPicker', showHSL: false, showRGB: false
+                });
+                return new Promise((resolve, reject) => {
+                    iframe.onload = e => {
+                        if (iframe.contentWindow.location.search == '?color=red') {
+                            resolve();
+                        } else {
+                            reject('expected "' + iframe.contentWindow.location.search + '" to equal "?color=red"');
+                        }
+                    };
+                    console.warn('mi aspetto un errore al submit della form');
+                    form.submit();
+                });
             });
         });
         setTimeout(() => {

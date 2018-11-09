@@ -33,7 +33,7 @@ import {
 } from './utils.js';
 import isPlainObject from 'is-plain-object';
 
-const VERSION = '1.1.3';
+const VERSION = '1.1.4';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -82,7 +82,7 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                                     <canvas class="a-color-picker-h"></canvas>
                                     <div class="a-color-picker-dot"></div>
                                 </div>
-                                <div class="a-color-picker-cell a-color-picker-stack" show-on-alpha>
+                                <div class="a-color-picker-cell a-color-picker-alpha a-color-picker-stack" show-on-alpha>
                                     <canvas class="a-color-picker-a a-color-picker-transparent"></canvas>
                                     <div class="a-color-picker-dot"></div>
                                 </div>
@@ -90,23 +90,23 @@ const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
                         </div>
                         <div class="a-color-picker-row a-color-picker-hsl" show-on-hsl>
                             <label>H</label>
-                            <input name="H" type="number" maxlength="3" min="0" max="360" value="0">
+                            <input nameref="H" type="number" maxlength="3" min="0" max="360" value="0">
                             <label>S</label>
-                            <input name="S" type="number" maxlength="3" min="0" max="100" value="0">
+                            <input nameref="S" type="number" maxlength="3" min="0" max="100" value="0">
                             <label>L</label>
-                            <input name="L" type="number" maxlength="3" min="0" max="100" value="0">
+                            <input nameref="L" type="number" maxlength="3" min="0" max="100" value="0">
                         </div>
                         <div class="a-color-picker-row a-color-picker-rgb" show-on-rgb>
                             <label>R</label>
-                            <input name="R" type="number" maxlength="3" min="0" max="255" value="0">
+                            <input nameref="R" type="number" maxlength="3" min="0" max="255" value="0">
                             <label>G</label>
-                            <input name="G" type="number" maxlength="3" min="0" max="255" value="0">
+                            <input nameref="G" type="number" maxlength="3" min="0" max="255" value="0">
                             <label>B</label>
-                            <input name="B" type="number" maxlength="3" min="0" max="255" value="0">
+                            <input nameref="B" type="number" maxlength="3" min="0" max="255" value="0">
                         </div>
-                        <div class="a-color-picker-row a-color-picker-single-input" show-on-single-input>
+                        <div class="a-color-picker-row a-color-picker-rgbhex a-color-picker-single-input" show-on-single-input>
                             <label>HEX</label>
-                            <input name="RGBHEX" type="text" select-on-focus>
+                            <input nameref="RGBHEX" type="text" select-on-focus>
                         </div>
                         <div class="a-color-picker-row a-color-picker-palette"></div>`;
 
@@ -305,14 +305,14 @@ class ColorPicker {
                 this.element.id = this.options.id;
             }
             this.element.className = 'a-color-picker';
-            // se falsy viene nascosto .a-color-picker-rgb
-            if (!this.options.showRGB) this.element.className += ' hide-rgb';
-            // se falsy viene nascosto .a-color-picker-hsl
-            if (!this.options.showHSL) this.element.className += ' hide-hsl';
-            // se falsy viene nascosto .a-color-picker-single-input (css hex)
-            if (!this.options.showHEX) this.element.className += ' hide-single-input';
-            // se falsy viene nascosto .a-color-picker-a
-            if (!this.options.showAlpha) this.element.className += ' hide-alpha';
+            // // se falsy viene nascosto .a-color-picker-rgb
+            // if (!this.options.showRGB) this.element.className += ' hide-rgb';
+            // // se falsy viene nascosto .a-color-picker-hsl
+            // if (!this.options.showHSL) this.element.className += ' hide-hsl';
+            // // se falsy viene nascosto .a-color-picker-single-input (css hex)
+            // if (!this.options.showHEX) this.element.className += ' hide-single-input';
+            // // se falsy viene nascosto .a-color-picker-a
+            // if (!this.options.showAlpha) this.element.className += ' hide-alpha';
             this.element.innerHTML = HTML_BOX;
             container.appendChild(this.element);
             // preparo il canvas con tutto lo spettro del HUE (da 0 a 360)
@@ -330,19 +330,40 @@ class ColorPicker {
             this.preview = this.element.querySelector('.a-color-picker-preview');
             this.setupClipboard(this.preview.querySelector('.a-color-picker-clipbaord'));
             // prearo gli input box
-            this.setupInput(this.inputH = this.element.querySelector('.a-color-picker-hsl>input[name=H]'));
-            this.setupInput(this.inputS = this.element.querySelector('.a-color-picker-hsl>input[name=S]'));
-            this.setupInput(this.inputL = this.element.querySelector('.a-color-picker-hsl>input[name=L]'));
-            this.setupInput(this.inputR = this.element.querySelector('.a-color-picker-rgb>input[name=R]'));
-            this.setupInput(this.inputG = this.element.querySelector('.a-color-picker-rgb>input[name=G]'));
-            this.setupInput(this.inputB = this.element.querySelector('.a-color-picker-rgb>input[name=B]'));
+            if (this.options.showHSL) {
+                this.setupInput(this.inputH = this.element.querySelector('.a-color-picker-hsl>input[nameref=H]'));
+                this.setupInput(this.inputS = this.element.querySelector('.a-color-picker-hsl>input[nameref=S]'));
+                this.setupInput(this.inputL = this.element.querySelector('.a-color-picker-hsl>input[nameref=L]'));
+            } else {
+                this.element.querySelector('.a-color-picker-hsl').remove();
+            }
+            if (this.options.showRGB) {
+                this.setupInput(this.inputR = this.element.querySelector('.a-color-picker-rgb>input[nameref=R]'));
+                this.setupInput(this.inputG = this.element.querySelector('.a-color-picker-rgb>input[nameref=G]'));
+                this.setupInput(this.inputB = this.element.querySelector('.a-color-picker-rgb>input[nameref=B]'));
+            } else {
+                this.element.querySelector('.a-color-picker-rgb').remove();
+            }
             // preparo l'input per il formato hex css
-            this.setupInput(this.inputRGBHEX = this.element.querySelector('input[name=RGBHEX]'));
+            if (this.options.showHEX) {
+                this.setupInput(this.inputRGBHEX = this.element.querySelector('input[nameref=RGBHEX]'));
+            } else {
+                this.element.querySelector('.a-color-picker-rgbhex').remove();
+            }
             // preparo la palette con i colori predefiniti
-            this.setPalette(this.element.querySelector('.a-color-picker-palette'));
+            //  (palette può contenere sia un Array che una stringa, entrambi con prop length)
+            if (this.options.paletteEditable || (this.options.palette && this.options.palette.length > 0)) {
+                this.setPalette(this.element.querySelector('.a-color-picker-palette'));
+            } else {
+                this.element.querySelector('.a-color-picker-palette').remove();
+            }
             // preparo in canvas per l'opacità
-            this.setupAlphaCanvas(this.element.querySelector('.a-color-picker-a'));
-            this.alphaPointer = this.element.querySelector('.a-color-picker-a+.a-color-picker-dot');
+            if (this.options.showAlpha) {
+                this.setupAlphaCanvas(this.element.querySelector('.a-color-picker-a'));
+                this.alphaPointer = this.element.querySelector('.a-color-picker-a+.a-color-picker-dot');
+            } else {
+                this.element.querySelector('.a-color-picker-alpha').remove();
+            }
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
@@ -507,7 +528,18 @@ class ColorPicker {
         // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
         const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
-        const palette = ensureArray(this.options.palette);
+        let palette;
+        switch (this.options.palette) {
+            case 'PALETTE_MATERIAL_500':
+                palette = PALETTE_MATERIAL_500;
+                break;
+            case 'PALETTE_MATERIAL_CHROME':
+                palette = PALETTE_MATERIAL_CHROME;
+                break;
+            default:
+                palette = ensureArray(this.options.palette);
+                break;
+        }
         if (this.options.paletteEditable || palette.length > 0) {
             const addColorToPalette = (color, refElement, fire) => {
                 // se il colore è già presente, non creo un nuovo <div> ma sposto quello esistente in coda
@@ -724,18 +756,24 @@ class ColorPicker {
     }
 
     updateInputHSL(h, s, l) {
+        if (!this.options.showHSL) return;
+
         this.inputH.value = h;
         this.inputS.value = s;
         this.inputL.value = l;
     }
 
     updateInputRGB(r, g, b) {
+        if (!this.options.showRGB) return;
+
         this.inputR.value = r;
         this.inputG.value = g;
         this.inputB.value = b;
     }
 
     updateInputRGBHEX(r, g, b) {
+        if (!this.options.showHEX) return;
+
         this.inputRGBHEX.value = rgbToHex(r, g, b);
     }
 
@@ -754,6 +792,8 @@ class ColorPicker {
     }
 
     updatePointerA(a) {
+        if (!this.options.showAlpha) return;
+
         const x = ALPHA_BAR_SIZE[0] * a;
         this.alphaPointer.style.left = (x - 7) + 'px';
     }

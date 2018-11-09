@@ -7,6 +7,8 @@ A color picker for web app
 ![a-color-picker screenshot](/screenshots/screenshot.png)
 ![a-color-picker screenshot](/screenshots/screenshot_alpha.png)
 
+See [api and demo](https://narsenico.github.io/a-color-picker/)
+
 ## Usage
 1. Include `acolorpicker.js`
     ```html
