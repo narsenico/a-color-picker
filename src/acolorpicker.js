@@ -33,7 +33,7 @@ import {
 } from './utils.js';
 import isPlainObject from 'is-plain-object';
 
-const VERSION = '1.1.4';
+const VERSION = '1.1.5';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
