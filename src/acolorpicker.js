@@ -51,8 +51,8 @@ const DEFAULT = {
     useAlphaInPalette: 'auto' //true|false|auto
 };
 
-const SL_BAR_SIZE = [200, 150],
-    HUE_BAR_SIZE = [150, 16],
+const SL_BAR_SIZE = [232, 150],
+    HUE_BAR_SIZE = [150, 11],
     ALPHA_BAR_SIZE = HUE_BAR_SIZE,
     HUE = 'H',
     SATURATION = 'S',
@@ -67,7 +67,7 @@ const SL_BAR_SIZE = [200, 150],
     HSLA_USER = 'HSLA_USER',
     ALPHA = 'ALPHA';
 
-const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
+const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack a-color-picker-row-top">
                             <canvas class="a-color-picker-sl a-color-picker-transparent"></canvas>
                             <div class="a-color-picker-dot"></div>
                         </div>
