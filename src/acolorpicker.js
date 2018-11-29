@@ -13,6 +13,7 @@ import {
     rgbToHex,
     hslToRgb,
     rgbToHsl,
+    rgbToHsv,
     rgbToInt,
     intToRgb,
     cssColorToRgb,
@@ -177,28 +178,10 @@ function canvasHelper(canvas) {
         },
 
         findColor(r, g, b) {
-            // TODO: se la luminosità è bassa posso controllare prima la parte inferiore
-            const rowLen = width * 4,
-                // visto che non sono sicuro di trovare il colore esatto considero un gap in + e - su tutti i 3 valori
-                gap = 5,
-                // array contenente tutti i pixel, ogni pixel sono 4 byte RGBA (quindi è grande w*h*4)
-                data = ctx.getImageData(0, 0, width, height).data;
-            let coord = [-1, -1];
-            // console.log(data.length, r, g, b)
-            // console.log(data)
-            // console.time('findColor');
-            // scorro l'array di pixel, ogni 4 byte c'è un pixel nuovo
-            for (let ii = 0; ii < data.length; ii += 4) {
-                if (Math.abs(data[ii] - r) <= gap &&
-                    Math.abs(data[ii + 1] - g) <= gap &&
-                    Math.abs(data[ii + 2] - b) <= gap) {
-                    // console.log('found', ii, Math.floor(ii/rowLen), (ii%rowLen)/4);
-                    coord = [(ii % rowLen) / 4, Math.floor(ii / rowLen)];
-                    break;
-                }
-            }
-            // console.timeEnd('findColor');
-            return coord;
+            const [, s, v] = rgbToHsv(r, g, b);
+            const x = s * width;
+            const y = height - (v * height);
+            return [x, y];
         }
     };
 }
@@ -1101,6 +1084,7 @@ export {
     rgbToHex,
     hslToRgb,
     rgbToHsl,
+    rgbToHsv,
     rgbToInt,
     intToRgb,
     getLuminance,

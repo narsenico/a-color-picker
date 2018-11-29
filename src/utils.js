@@ -115,6 +115,35 @@ function rgbToHsl(r, g, b) {
     return [h * 360, s * 100, l * 100].map(Math.round);
 }
 
+
+/**
+ * Converte from RGB to HSV.
+ * 
+ * @param      {number}  r       rosso 0-255
+ * @param      {number}  g       veerde 0-255
+ * @param      {number}  b       blu 0-255
+ * @return     {Array}   un array con H(0-360) S(0-100) V(0-100)
+ */
+function rgbToHsv(r, g, b) {
+    [r, g, b] = [limit(r, 0, 255) / 255, limit(g, 0, 255) / 255, limit(b, 0, 255) / 255];
+    const max = Math.max(r, g, b),
+        min = Math.min(r, g, b);
+    let h, s, v = max;
+    let d = max - min;
+    s = max === 0 ? 0 : d / max;
+    if(max == min) {
+        h = 0;
+    } else {
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return [h, s, v];
+}
+
 function rgbToInt(r, g, b) {
     return (r << 16) | (g << 8) | b;
 }
@@ -391,6 +420,7 @@ export {
     rgbToHex,
     hslToRgb,
     rgbToHsl,
+    rgbToHsv,
     rgbToInt,
     intToRgb,
     cssColorToRgb,
