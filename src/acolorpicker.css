@@ -170,14 +170,14 @@
     flex-flow: wrap;
     flex-direction: row;
     justify-content: flex-start;
-    padding: 12px 16px;
+    padding: 10px;
 }
 
 .a-color-picker-palette-color {
     width: 15px;
     height: 15px;
     flex: 0 1 15px;
-    margin: 5px;
+    margin: 3px;
     box-sizing: border-box;
     cursor: pointer;
     border-radius: 3px;
