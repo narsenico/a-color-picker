@@ -848,11 +848,11 @@ class EventEmitter {
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
 function createPicker(element, options) {
-    const picker = new ColorPicker(element, options);
+    let picker = new ColorPicker(element, options);
     // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
     // quando il picker triggera un evento, 
     //  il "controller" emette lo stesso evento tramite il rispettivo EventEmitter
-    const cbEvents = {
+    let cbEvents = {
         change: new EventEmitter('change'),
         coloradd: new EventEmitter('coloradd'),
         colorremove: new EventEmitter('colorremove')
@@ -1022,6 +1022,15 @@ function createPicker(element, options) {
                 cbEvents[eventName] && cbEvents[eventName].off(cb);
             }
             return this;
+        },
+
+        destroy() {
+            cbEvents.change.off()
+            cbEvents.coloradd.off()
+            cbEvents.colorremove.off()
+            picker.element.remove()
+            cbEvents = null
+            picker = null
         }
     };
     // ogni volta che viene triggerato un evento, uso il corrispettivo EventEmitter per propagarlo a tutte le callback associate
