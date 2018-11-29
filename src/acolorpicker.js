@@ -476,7 +476,7 @@ class ColorPicker {
     setupInput(input) {
         const min = +input.min,
             max = +input.max,
-            prop = input.name;
+            prop = input.getAttribute("nameref");
         if (input.hasAttribute('select-on-focus')) {
             input.addEventListener('focus', () => {
                 //non funziona in IE/Edge
