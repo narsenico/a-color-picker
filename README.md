@@ -3,11 +3,9 @@
 
 ![a-color-picker](/screenshots/logotype.png)
 
-A color picker for web app
+See [api and demo](https://narsenico.github.io/a-color-picker/)
 
 ![a-color-picker screenshot](/screenshots/screenshot_all.png)
-
-See [api and demo](https://narsenico.github.io/a-color-picker/)
 
 ## Usage
 1. Include `acolorpicker.js`
