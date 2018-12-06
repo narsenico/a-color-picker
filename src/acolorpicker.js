@@ -13,6 +13,7 @@ import {
     rgbToHex,
     hslToRgb,
     rgbToHsl,
+    rgbToHsv,
     rgbToInt,
     intToRgb,
     cssColorToRgb,
@@ -33,7 +34,7 @@ import {
 } from './utils.js';
 import isPlainObject from 'is-plain-object';
 
-const VERSION = '1.1.4';
+const VERSION = '1.1.6';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -51,8 +52,8 @@ const DEFAULT = {
     useAlphaInPalette: 'auto' //true|false|auto
 };
 
-const SL_BAR_SIZE = [200, 150],
-    HUE_BAR_SIZE = [150, 16],
+const SL_BAR_SIZE = [232, 150],
+    HUE_BAR_SIZE = [150, 11],
     ALPHA_BAR_SIZE = HUE_BAR_SIZE,
     HUE = 'H',
     SATURATION = 'S',
@@ -67,7 +68,7 @@ const SL_BAR_SIZE = [200, 150],
     HSLA_USER = 'HSLA_USER',
     ALPHA = 'ALPHA';
 
-const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack">
+const HTML_BOX = `<div class="a-color-picker-row a-color-picker-stack a-color-picker-row-top">
                             <canvas class="a-color-picker-sl a-color-picker-transparent"></canvas>
                             <div class="a-color-picker-dot"></div>
                         </div>
@@ -177,28 +178,10 @@ function canvasHelper(canvas) {
         },
 
         findColor(r, g, b) {
-            // TODO: se la luminosità è bassa posso controllare prima la parte inferiore
-            const rowLen = width * 4,
-                // visto che non sono sicuro di trovare il colore esatto considero un gap in + e - su tutti i 3 valori
-                gap = 5,
-                // array contenente tutti i pixel, ogni pixel sono 4 byte RGBA (quindi è grande w*h*4)
-                data = ctx.getImageData(0, 0, width, height).data;
-            let coord = [-1, -1];
-            // console.log(data.length, r, g, b)
-            // console.log(data)
-            // console.time('findColor');
-            // scorro l'array di pixel, ogni 4 byte c'è un pixel nuovo
-            for (let ii = 0; ii < data.length; ii += 4) {
-                if (Math.abs(data[ii] - r) <= gap &&
-                    Math.abs(data[ii + 1] - g) <= gap &&
-                    Math.abs(data[ii + 2] - b) <= gap) {
-                    // console.log('found', ii, Math.floor(ii/rowLen), (ii%rowLen)/4);
-                    coord = [(ii % rowLen) / 4, Math.floor(ii / rowLen)];
-                    break;
-                }
-            }
-            // console.timeEnd('findColor');
-            return coord;
+            const [, s, v] = rgbToHsv(r, g, b);
+            const x = s * width;
+            const y = height - (v * height);
+            return [x, y];
         }
     };
 }
@@ -476,7 +459,7 @@ class ColorPicker {
     setupInput(input) {
         const min = +input.min,
             max = +input.max,
-            prop = input.name;
+            prop = input.getAttribute("nameref");
         if (input.hasAttribute('select-on-focus')) {
             input.addEventListener('focus', () => {
                 //non funziona in IE/Edge
@@ -848,11 +831,11 @@ class EventEmitter {
  * @return     {Object}          ritorna un controller per impostare e recuperare il colore corrente del picker
  */
 function createPicker(element, options) {
-    const picker = new ColorPicker(element, options);
+    let picker = new ColorPicker(element, options);
     // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
     // quando il picker triggera un evento, 
     //  il "controller" emette lo stesso evento tramite il rispettivo EventEmitter
-    const cbEvents = {
+    let cbEvents = {
         change: new EventEmitter('change'),
         coloradd: new EventEmitter('coloradd'),
         colorremove: new EventEmitter('colorremove')
@@ -1022,6 +1005,15 @@ function createPicker(element, options) {
                 cbEvents[eventName] && cbEvents[eventName].off(cb);
             }
             return this;
+        },
+
+        destroy() {
+            cbEvents.change.off()
+            cbEvents.coloradd.off()
+            cbEvents.colorremove.off()
+            picker.element.remove()
+            cbEvents = null
+            picker = null
         }
     };
     // ogni volta che viene triggerato un evento, uso il corrispettivo EventEmitter per propagarlo a tutte le callback associate
@@ -1092,6 +1084,7 @@ export {
     rgbToHex,
     hslToRgb,
     rgbToHsl,
+    rgbToHsv,
     rgbToInt,
     intToRgb,
     getLuminance,
