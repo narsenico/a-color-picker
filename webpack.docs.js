@@ -53,6 +53,14 @@ module.exports = {
                     stripdeclarations: true
                 }
             }
+        }, {
+            test: /\.(html)$/,
+            use: {
+                loader: 'html-loader',
+                options: {
+                    minimize: true
+                }
+            }
         }]
     },
     devtool: 'cheap-module-source-map',
