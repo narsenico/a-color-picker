@@ -36,14 +36,27 @@ module.exports = {
         rules: [{
             test: /acolorpicker\.css$/,
             use: [
-                'to-string-loader',
-                'css-loader']
+                {
+                    loader: 'to-string-loader'
+                }, {
+                    loader: 'css-loader',
+                    options: {
+                        minimize: true
+                    }
+                }
+            ]
         }, {
             test: /[^acolorpicker]\.css$/,
             use: [
-                'style-loader',
-                'css-loader'
-            ]
+                {
+                    loader: 'style-loader'
+                }, {
+                    loader: 'css-loader',
+                    options: {
+                        minimize: true
+                    }
+                }
+            ],
         }, {
             test: /\.js$/,
             exclude: /(node_modules)/,

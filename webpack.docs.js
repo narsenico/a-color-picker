@@ -33,8 +33,14 @@ module.exports = {
         }, {
             test: /[^acolorpicker]\.css$/,
             use: [
-                'style-loader',
-                'css-loader'
+                {
+                    loader: 'style-loader'
+                }, {
+                    loader: 'css-loader',
+                    options: {
+                        minimize: true
+                    }
+                }
             ]
         }, {
             test: /\.js$/,
