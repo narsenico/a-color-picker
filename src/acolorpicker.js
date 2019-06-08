@@ -1,7 +1,7 @@
 /*!
  * a-color-picker
  * https://github.com/narsenico/a-color-picker
- * 
+ *
  * Copyright (c) 2017-2018, Gianfranco Caldi.
  * Released under the MIT License.
  */
@@ -35,7 +35,7 @@ import {
 import isPlainObject from 'is-plain-object';
 import HTML_BOX from './acolorpicker.html';
 
-const VERSION = '1.1.7';
+const VERSION = '1.1.8';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -116,7 +116,7 @@ function canvasHelper(canvas) {
     return {
         setHue(hue) {
             // gradiente con il colore relavito a lo HUE da sinistra a destra partendo da trasparente a opaco
-            // la combinazione del gradiente bianco/nero e questo permette di avere un canvas dove 
+            // la combinazione del gradiente bianco/nero e questo permette di avere un canvas dove
             // sull'asse delle ordinate è espressa la saturazione, e sull'asse delle ascisse c'è la luminosità
             const colorGradient = ctx.createLinearGradient(0, 0, width - 1, 0);
             colorGradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0)`);
@@ -327,7 +327,7 @@ class ColorPicker {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, HUE_BAR_SIZE[0], HUE_BAR_SIZE[1]);
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
-        // una volta che il puntatore è premuto sul canvas (mousedown) 
+        // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
@@ -354,7 +354,7 @@ class ColorPicker {
         canvas.width = SL_BAR_SIZE[0];
         canvas.height = SL_BAR_SIZE[1];
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
-        // una volta che il puntatore è premuto sul canvas (mousedown) 
+        // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
@@ -391,7 +391,7 @@ class ColorPicker {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, ALPHA_BAR_SIZE[0], ALPHA_BAR_SIZE[1]);
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
-        // una volta che il puntatore è premuto sul canvas (mousedown) 
+        // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
@@ -791,7 +791,7 @@ class EventEmitter {
 function createPicker(element, options) {
     let picker = new ColorPicker(element, options);
     // gestione degli eventi: il "controller" assegna le callbak degli eventi ai rispettivi EventEmitter
-    // quando il picker triggera un evento, 
+    // quando il picker triggera un evento,
     //  il "controller" emette lo stesso evento tramite il rispettivo EventEmitter
     let cbEvents = {
         change: new EventEmitter('change'),
@@ -850,7 +850,7 @@ function createPicker(element, options) {
         },
 
         /**
-         * Ritorna il colore corrente nel formato RGB HEX, 
+         * Ritorna il colore corrente nel formato RGB HEX,
          * oppure nella notazione rgba() con alpha != 1.
          *
          * @return     {string}  colore corrente
@@ -975,7 +975,7 @@ function createPicker(element, options) {
         }
     };
     // ogni volta che viene triggerato un evento, uso il corrispettivo EventEmitter per propagarlo a tutte le callback associate
-    //  le callback vengono richiamate con il "controller" come "this" 
+    //  le callback vengono richiamate con il "controller" come "this"
     //  e il primo parametro è sempre il "controller" seguito da tutti i parametri dell'evento
     picker.onchange = (...args) => {
         isChanged = true; // così le proprietà in lettura dovranno ricalcolare il loro valore
@@ -994,9 +994,9 @@ function createPicker(element, options) {
 }
 
 /**
- * 
- * @param {any} selector 
- * @param {object} options 
+ *
+ * @param {any} selector
+ * @param {object} options
  * @return  un Array di controller così come restituito da createPicker()
  */
 function from(selector, options) {
