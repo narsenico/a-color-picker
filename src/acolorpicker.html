@@ -1,0 +1,42 @@
+<div class="a-color-picker-row a-color-picker-stack a-color-picker-row-top">
+    <canvas class="a-color-picker-sl a-color-picker-transparent"></canvas>
+    <div class="a-color-picker-dot"></div>
+</div>
+<div class="a-color-picker-row">
+    <div class="a-color-picker-stack a-color-picker-transparent a-color-picker-circle">
+        <div class="a-color-picker-preview">
+            <input class="a-color-picker-clipbaord" type="text">
+        </div>
+    </div>
+    <div class="a-color-picker-column">
+        <div class="a-color-picker-cell a-color-picker-stack">
+            <canvas class="a-color-picker-h"></canvas>
+            <div class="a-color-picker-dot"></div>
+        </div>
+        <div class="a-color-picker-cell a-color-picker-alpha a-color-picker-stack" show-on-alpha>
+            <canvas class="a-color-picker-a a-color-picker-transparent"></canvas>
+            <div class="a-color-picker-dot"></div>
+        </div>
+    </div>
+</div>
+<div class="a-color-picker-row a-color-picker-hsl" show-on-hsl>
+    <label>H</label>
+    <input nameref="H" type="number" maxlength="3" min="0" max="360" value="0">
+    <label>S</label>
+    <input nameref="S" type="number" maxlength="3" min="0" max="100" value="0">
+    <label>L</label>
+    <input nameref="L" type="number" maxlength="3" min="0" max="100" value="0">
+</div>
+<div class="a-color-picker-row a-color-picker-rgb" show-on-rgb>
+    <label>R</label>
+    <input nameref="R" type="number" maxlength="3" min="0" max="255" value="0">
+    <label>G</label>
+    <input nameref="G" type="number" maxlength="3" min="0" max="255" value="0">
+    <label>B</label>
+    <input nameref="B" type="number" maxlength="3" min="0" max="255" value="0">
+</div>
+<div class="a-color-picker-row a-color-picker-rgbhex a-color-picker-single-input" show-on-single-input>
+    <label>HEX</label>
+    <input nameref="RGBHEX" type="text" select-on-focus>
+</div>
+<div class="a-color-picker-row a-color-picker-palette"></div>
