@@ -2,7 +2,7 @@
  * a-color-picker
  * https://github.com/narsenico/a-color-picker
  *
- * Copyright (c) 2017-2018, Gianfranco Caldi.
+ * Copyright (c) 2017-2019, Gianfranco Caldi.
  * Released under the MIT License.
  */
 
@@ -17,13 +17,8 @@ import {
     rgbToInt,
     intToRgb,
     cssColorToRgb,
-    cssColorToRgba,
-    cssRgbToRgb,
-    cssRgbaToRgba,
     parseColorToRgb,
     parseColorToRgba,
-    cssHslToHsl,
-    cssHslaToHsla,
     parseColorToHsl,
     parseColorToHsla,
     parseColor,
@@ -187,7 +182,7 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
                 options.palette = PALETTE_MATERIAL_CHROME;
                 break;
             default:
-                options.palette = palette.split(/[;\|]/);
+                options.palette = palette.split(/[;|]/);
                 break;
         }
     }
@@ -198,32 +193,21 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
 
 class ColorPicker {
     constructor(container, options) {
-        if (!options) {
-            //controllo se siamo nel caso di options passato come primo parametro
-            if (container && isPlainObject(container)) {
-                // se non trovo options e container è un {} lo considero il vero options
-                this.options = Object.assign({}, DEFAULT, container);
-                container = parseElement(this.options.attachTo);
-            } else {
-                // altrimenti uso le opzioni di default
-                this.options = Object.assign({}, DEFAULT);
-                // nel caso non vengano proprio passati parametri, considero attachTo di default
-                container = parseElement(nvl(container, this.options.attachTo));
-            }
-        } else {
+        //controllo se siamo nel caso di options passato come primo parametro
+        if (options) {
             container = parseElement(container);
             this.options = Object.assign({}, DEFAULT, options);
+        } else if (container && isPlainObject(container)) {
+            // se non trovo options e container è un {} lo considero il vero options
+            this.options = Object.assign({}, DEFAULT, container);
+            container = parseElement(this.options.attachTo);
+        } else {
+            // altrimenti uso le opzioni di default
+            this.options = Object.assign({}, DEFAULT);
+            // nel caso non vengano proprio passati parametri, considero attachTo di default
+            container = parseElement(nvl(container, this.options.attachTo));
         }
 
-        /*         if (container) {
-                    // se viene passato al costrutto un elemento HTML uso le opzioni di default
-                    this.options = Object.assign({}, DEFAULT, { attachTo: options });
-                } else {
-                    // altrimenti presumo che sia indicato nelle opzioni qual'è il contenitore
-                    this.options = Object.assign({}, DEFAULT, options);
-                    container = parseElement(this.options.attachTo);
-                }
-         */
         if (container) {
             // le opzioni possono essere specificate come attributi dell'elemento contenitore
             // quelle presenti sostituiranno le corrispondenti passate con il parametro options
@@ -469,6 +453,7 @@ class ColorPicker {
         // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
         const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
+        // eslint-disable-next-line init-declarations
         let palette;
         switch (this.options.palette) {
             case 'PALETTE_MATERIAL_500':
@@ -532,13 +517,12 @@ class ColorPicker {
                         if (e.shiftKey) {
                             // rimuove tutti i colori
                             removeColorToPalette(null, true);
+                        } else if (useAlphaInPalette) {
+                            // aggiungo il colore e triggero l'evento 'oncoloradd'
+                            addColorToPalette(parseColor([this.R, this.G, this.B, this.A], 'rgbcss4'), e.target, true);
                         } else {
                             // aggiungo il colore e triggero l'evento 'oncoloradd'
-                            if (useAlphaInPalette) {
-                                addColorToPalette(parseColor([this.R, this.G, this.B, this.A], 'rgbcss4'), e.target, true);
-                            } else {
-                                addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
-                            }
+                            addColorToPalette(rgbToHex(this.R, this.G, this.B), e.target, true);
                         }
                     } else if (/a-color-picker-palette-color/.test(e.target.className)) {
                         if (e.shiftKey) {
@@ -1021,6 +1005,7 @@ if (typeof window !== 'undefined') {
     // solo in ambiente browser inserisco direttamente nella pagina html il css
     //  per sicurezza controllo che non sia già presente
     if (!document.querySelector('head>style[data-source="a-color-picker"]')) {
+        // eslint-disable-next-line global-require,  no-undef
         const css = require('./acolorpicker.css').toString();
         const style = document.createElement('style');
         style.setAttribute('type', 'text/css');
