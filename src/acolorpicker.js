@@ -118,7 +118,7 @@ function canvasHelper(canvas) {
             // gradiente con il colore relavito a lo HUE da sinistra a destra partendo da trasparente a opaco
             // la combinazione del gradiente bianco/nero e questo permette di avere un canvas dove
             // sull'asse delle ordinate è espressa la saturazione, e sull'asse delle ascisse c'è la luminosità
-            const colorGradient = ctx.createLinearGradient(0, 0, width - 1, 0);
+            const colorGradient = ctx.createLinearGradient(1, 0, width - 1, 0);
             colorGradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0)`);
             colorGradient.addColorStop(1, `hsla(${hue}, 100%, 50%, 1)`);
             // applico i gradienti
