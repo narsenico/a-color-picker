@@ -218,6 +218,17 @@
                 expect(a.element.querySelector('.a-color-picker-palette')).to.not.be.equal(null);
                 expect(a.element.querySelectorAll('input[nameref]').length).to.be.equal(0);
             });
+            it('createPicker with hue and sl bar size changed', () => {
+                const a = AColorPicker.createPicker({
+                    showRGB: true, showHSL: false, showHEX: false, showAlpha: false,
+                    hueBarSize: [190, 7],
+                    slBarSize: [290, 190]
+                });
+                expect(a.element.querySelector('canvas.a-color-picker-sl').width).to.be.equal(290);
+                expect(a.element.querySelector('canvas.a-color-picker-sl').height).to.be.equal(190);
+                expect(a.element.querySelector('canvas.a-color-picker-h').width).to.be.equal(190);
+                expect(a.element.querySelector('canvas.a-color-picker-h').height).to.be.equal(7);
+            });
         });
         describe('Other functions', () => {
             it('submit a form: picker\'s inputs must not be sent', () => {
