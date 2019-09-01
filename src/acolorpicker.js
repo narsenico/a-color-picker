@@ -45,13 +45,13 @@ const DEFAULT = {
     color: '#ff0000',
     palette: null,
     paletteEditable: false,
-    useAlphaInPalette: 'auto' //true|false|auto
+    useAlphaInPalette: 'auto', //true|false|auto
+    slBarSize: [232, 150],
+    hueBarSize: [150, 11],
+    alphaBarSize: [150, 11],
 };
 
-const SL_BAR_SIZE = [232, 150],
-    HUE_BAR_SIZE = [150, 11],
-    ALPHA_BAR_SIZE = HUE_BAR_SIZE,
-    HUE = 'H',
+const HUE = 'H',
     SATURATION = 'S',
     LUMINANCE = 'L',
     RGB = 'RGB',
@@ -153,6 +153,20 @@ function parseAttrBoolean(value, ifNull, ifEmpty) {
     }
 }
 
+function parseAttrDimensionArray(value, ifNull, ifEmpty) {
+    if (value === null) {
+        return ifNull;
+    } else if (/^\s*$/.test(value)) {
+        return ifEmpty;
+    } else {
+        const dimensions = value.split(',').map(Number);
+        if (dimensions.length === 2 && dimensions[0] && dimensions[1]) {
+            return dimensions
+        }
+        return ifNull;
+    }
+}
+
 function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
     // getAttribute() dovrebbe restituire null se l'attr non esiste, ma le vecchie specifiche prevedono il ritorno di una stringa vuota
     //  quindi è meglio verificare l'esistenza dell'attr con hasAttribute()
@@ -170,6 +184,13 @@ function copyOptionsFromElement(options, element, attrPrefix = 'acp-') {
     }
     if (element.hasAttribute(attrPrefix + 'palette-editable')) {
         options.paletteEditable = parseAttrBoolean(element.getAttribute(attrPrefix + 'palette-editable'), DEFAULT.paletteEditable, true);
+    }
+    if (element.hasAttribute(attrPrefix + 'sl-bar-size')) {
+        options.slBarSize = parseAttrDimensionArray(element.getAttribute(attrPrefix + 'sl-bar-size'), DEFAULT.slBarSize, [232, 150]);
+    }
+    if (element.hasAttribute(attrPrefix + 'hue-bar-size')) {
+        options.hueBarSize = parseAttrDimensionArray(element.getAttribute(attrPrefix + 'hue-bar-size'), DEFAULT.hueBarSize, [150, 11]);
+        options.alphaBarSize = options.hueBarSize
     }
     if (element.hasAttribute(attrPrefix + 'palette')) {
         const palette = element.getAttribute(attrPrefix + 'palette');
@@ -289,6 +310,7 @@ class ColorPicker {
             } else {
                 this.element.querySelector('.a-color-picker-alpha').remove();
             }
+            this.element.style.width = `${this.options.slBarSize[0]}px`;
             // imposto il colore iniziale
             this.onValueChanged(COLOR, this.options.color);
         } else {
@@ -297,27 +319,27 @@ class ColorPicker {
     }
 
     setupHueCanvas(canvas) {
-        canvas.width = HUE_BAR_SIZE[0];
-        canvas.height = HUE_BAR_SIZE[1];
+        canvas.width = this.options.hueBarSize[0];
+        canvas.height = this.options.hueBarSize[1];
         // disegno sul canvas applicando un gradiente lineare che copra tutti i possibili valori di HUE
         //  quindi ci vogliono 361 stop (da 0 a 360), mantendo fisse S e L
         const ctx = canvas.getContext('2d'),
-            gradient = ctx.createLinearGradient(0, 0, HUE_BAR_SIZE[0], 0),
+            gradient = ctx.createLinearGradient(0, 0, this.options.hueBarSize[0], 0),
             step = 1 / 360;
         // aggiungo tutti i 361 step al gradiente
         for (let ii = 0; ii <= 1; ii += step) {
             gradient.addColorStop(ii, `hsl(${360 * ii}, 100%, 50%)`);
         }
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, HUE_BAR_SIZE[0], HUE_BAR_SIZE[1]);
+        ctx.fillRect(0, 0, this.options.hueBarSize[0], this.options.hueBarSize[1]);
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
         // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
         const onMouseMove = (e) => {
-            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, HUE_BAR_SIZE[0]),
-                hue = Math.round(x * 360 / HUE_BAR_SIZE[0]);
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, this.options.hueBarSize[0]),
+                hue = Math.round(x * 360 / this.options.hueBarSize[0]);
             this.huePointer.style.left = (x - 7) + 'px';
             this.onValueChanged(HUE, hue);
         };
@@ -335,16 +357,16 @@ class ColorPicker {
     }
 
     setupSlCanvas(canvas) {
-        canvas.width = SL_BAR_SIZE[0];
-        canvas.height = SL_BAR_SIZE[1];
+        canvas.width = this.options.slBarSize[0];
+        canvas.height = this.options.slBarSize[1];
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
         // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
         const onMouseMove = (e) => {
-            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, SL_BAR_SIZE[0] - 1),
-                y = limit(e.clientY - canvas.getBoundingClientRect().top, 0, SL_BAR_SIZE[1] - 1),
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, this.options.slBarSize[0] - 1),
+                y = limit(e.clientY - canvas.getBoundingClientRect().top, 0, this.options.slBarSize[1] - 1),
                 c = this.slBarHelper.grabColor(x, y);
             // console.log('grab', x, y, c)
             this.slPointer.style.left = (x - 7) + 'px';
@@ -365,23 +387,23 @@ class ColorPicker {
     }
 
     setupAlphaCanvas(canvas) {
-        canvas.width = ALPHA_BAR_SIZE[0];
-        canvas.height = ALPHA_BAR_SIZE[1];
+        canvas.width = this.options.alphaBarSize[0];
+        canvas.height = this.options.alphaBarSize[1];
         // disegno sul canvas con un gradiente che va dalla piena trasparenza al pieno opaco
         const ctx = canvas.getContext('2d'),
             gradient = ctx.createLinearGradient(0, 0, canvas.width - 1, 0);
         gradient.addColorStop(0, `hsla(0, 0%, 50%, 0)`);
         gradient.addColorStop(1, `hsla(0, 0%, 50%, 1)`);
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, ALPHA_BAR_SIZE[0], ALPHA_BAR_SIZE[1]);
+        ctx.fillRect(0, 0, this.options.alphaBarSize[0], this.options.alphaBarSize[1]);
         // gestisco gli eventi per la selezione del valore e segnalo il cambiamento tramite callbak
         // una volta che il puntatore è premuto sul canvas (mousedown)
         // intercetto le variazioni nella posizione del puntatore (mousemove)
         // relativamente al document, in modo che il puntatore in movimento possa uscire dal canvas
         // una volta sollevato (mouseup) elimino i listener
         const onMouseMove = (e) => {
-            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, ALPHA_BAR_SIZE[0]),
-                alpha = +(x / ALPHA_BAR_SIZE[0]).toFixed(2);
+            const x = limit(e.clientX - canvas.getBoundingClientRect().left, 0, this.options.alphaBarSize[0]),
+                alpha = +(x / this.options.alphaBarSize[0]).toFixed(2);
             this.alphaPointer.style.left = (x - 7) + 'px';
             this.onValueChanged(ALPHA, alpha);
         };
@@ -453,7 +475,6 @@ class ColorPicker {
         // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
         const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
-        // eslint-disable-next-line init-declarations
         let palette;
         switch (this.options.palette) {
             case 'PALETTE_MATERIAL_500':
@@ -703,7 +724,7 @@ class ColorPicker {
     }
 
     updatePointerH(h) {
-        const x = HUE_BAR_SIZE[0] * h / 360;
+        const x = this.options.hueBarSize[0] * h / 360;
         this.huePointer.style.left = (x - 7) + 'px';
     }
 
@@ -719,7 +740,7 @@ class ColorPicker {
     updatePointerA(a) {
         if (!this.options.showAlpha) return;
 
-        const x = ALPHA_BAR_SIZE[0] * a;
+        const x = this.options.alphaBarSize[0] * a;
         this.alphaPointer.style.left = (x - 7) + 'px';
     }
 }
