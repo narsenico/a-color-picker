@@ -30,7 +30,7 @@ import {
 import isPlainObject from 'is-plain-object';
 import HTML_BOX from './acolorpicker.html';
 
-const VERSION = '1.1.8';
+const VERSION = '1.1.9';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -48,7 +48,7 @@ const DEFAULT = {
     useAlphaInPalette: 'auto', //true|false|auto
     slBarSize: [232, 150],
     hueBarSize: [150, 11],
-    alphaBarSize: [150, 11],
+    alphaBarSize: [150, 11]
 };
 
 const HUE = 'H',
@@ -475,7 +475,7 @@ class ColorPicker {
         // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
         const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
         // palette è una copia di this.options.palette
-        let palette;
+        let palette = null;
         switch (this.options.palette) {
             case 'PALETTE_MATERIAL_500':
                 palette = PALETTE_MATERIAL_500;
