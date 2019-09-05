@@ -267,6 +267,20 @@
                     form.submit();
                 });
             });
+            it('changing palette', () => {
+                const a = AColorPicker.createPicker({
+                    palette: ['red', 'yellow']
+                });
+                expect(a.element.querySelectorAll('.a-color-picker-palette>.a-color-picker-palette-color').length).to.be.equal(2);
+                a.palette = ['blue'];
+                expect(a.element.querySelectorAll('.a-color-picker-palette>.a-color-picker-palette-color').length).to.be.equal(1);
+            });
+            it('create palette', () => {
+                const a = AColorPicker.createPicker({});
+                expect(a.element.querySelectorAll('.a-color-picker-palette>.a-color-picker-palette-color').length).to.be.equal(0);
+                a.palette = ['blue'];
+                expect(a.element.querySelectorAll('.a-color-picker-palette>.a-color-picker-palette-color').length).to.be.equal(1);
+            });
         });
         setTimeout(() => {
             mocha.run();

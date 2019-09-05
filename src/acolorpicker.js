@@ -1,3 +1,4 @@
+// @ts-check
 /*!
  * a-color-picker
  * https://github.com/narsenico/a-color-picker
@@ -30,7 +31,7 @@ import {
 import isPlainObject from 'is-plain-object';
 import HTML_BOX from './acolorpicker.html';
 
-const VERSION = '1.1.9';
+const VERSION = '1.2.0';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -299,9 +300,12 @@ class ColorPicker {
             // preparo la palette con i colori predefiniti
             //  (palette può contenere sia un Array che una stringa, entrambi con prop length)
             if (this.options.paletteEditable || (this.options.palette && this.options.palette.length > 0)) {
-                this.setPalette(this.element.querySelector('.a-color-picker-palette'));
+                this.setPalette(this.paletteRow = this.element.querySelector('.a-color-picker-palette'));
             } else {
-                this.element.querySelector('.a-color-picker-palette').remove();
+                // TODO: #17 se l'elemento della palette è rimosso non posso modificarne il contenuto a posteriori
+                // rimuovo l'elemento dal DOM ma non lo elimino, potrebbe servirmi in seguito
+                this.paletteRow = this.element.querySelector('.a-color-picker-palette');
+                this.paletteRow.remove();
             }
             // preparo in canvas per l'opacità
             if (this.options.showAlpha) {
@@ -470,7 +474,7 @@ class ColorPicker {
         });
     }
 
-    setPalette(row) {
+    setPalette(/** @type {Element} */ row) {
         // indica se considerare il canale alpha nei controlli della palette
         // se 'auto' dipende dall'opzione showAlpha (se true allora alpha è considerata anche nella palette)
         const useAlphaInPalette = this.options.useAlphaInPalette === 'auto' ? this.options.showAlpha : this.options.useAlphaInPalette;
@@ -570,6 +574,19 @@ class ColorPicker {
             // la palette con i colori predefiniti viene nasconsta se non ci sono colori
             row.style.display = 'none';
         }
+    }
+
+    updatePalette(palette) {
+        // elimino tutti i riferimenti all'attuale palette
+        this.paletteRow.innerHTML = '';
+        this.palette = { };
+        // se l'elemento contenitore della palette è stato rimosso (nel costruttore), lo reintegro
+        if (!this.paletteRow.isConnected) {
+            this.element.appendChild(this.paletteRow);
+        }
+        // aggiorno le opzioni e ricreo i controlli
+        this.options.palette = palette;
+        this.setPalette(this.paletteRow);
     }
 
     onValueChanged(prop, value) {
@@ -954,6 +971,11 @@ function createPicker(element, options) {
          */
         get palette() {
             return Object.keys(picker.palette).filter(k => picker.palette[k]);
+        },
+
+        // TODO: #17 modifica della palette via codice, implementare metodo updatePalette
+        set palette(colors) {
+            picker.updatePalette(colors);
         },
 
         on(eventName, cb) {
