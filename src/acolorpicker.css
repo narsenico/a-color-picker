@@ -1,7 +1,7 @@
 /*!
  * a-color-picker
  * https://github.com/narsenico/a-color-picker
- * 
+ *
  * Copyright (c) 2017-2018, Gianfranco Caldi.
  * Released under the MIT License.
  */
@@ -96,7 +96,7 @@
 
 .a-color-picker-circle {
     border-radius: 50px;
-    border: solid 1px #eee;    
+    border: solid 1px #eee;
 }
 
 .a-color-picker-hsl,
@@ -130,8 +130,8 @@
 .a-color-picker-hsl>input::-webkit-inner-spin-button,
 .a-color-picker-rgb>input::-webkit-inner-spin-button,
 .a-color-picker-single-input>input::-webkit-inner-spin-button {
-    -webkit-appearance: none; 
-    margin: 0; 
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .a-color-picker-hsl>input:focus,
@@ -188,4 +188,8 @@
     text-align: center;
     line-height: 13px;
     color: #607D8B;
+}
+
+.a-color-picker.hidden {
+    display: none;
 }

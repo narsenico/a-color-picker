@@ -581,6 +581,9 @@ class ColorPicker {
         this.paletteRow.innerHTML = '';
         this.palette = { };
         // se l'elemento contenitore della palette è stato rimosso (nel costruttore), lo reintegro
+
+        // TODO: isConnected non è supportato da tutti i browser (!)
+
         if (!this.paletteRow.isConnected) {
             this.element.appendChild(this.paletteRow);
         }
@@ -976,6 +979,21 @@ function createPicker(element, options) {
         // TODO: #17 modifica della palette via codice, implementare metodo updatePalette
         set palette(colors) {
             picker.updatePalette(colors);
+        },
+
+        // TODO: #13
+        show() {
+            picker.element.classList.remove('hidden');
+        },
+
+        // TODO: #13
+        hide() {
+            picker.element.classList.add('hidden');
+        },
+
+        // TODO: #13
+        toggle() {
+            picker.element.classList.toggle('hidden');
         },
 
         on(eventName, cb) {

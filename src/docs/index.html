@@ -474,14 +474,17 @@ AColorPicker.<span class="prop">parseColor</span>(picker.<span class="prop">colo
 						<tbody>
 							<tr>
 								<td rowspan="2">palette</td>
-								<td class="explanation">Get the current palette
+								<td class="explanation">Get or set the current palette
 								</td>
 								<td class="explanation">Array</td>
-								<td class="explanation">Array of colors in hex format</td>
+								<td class="explanation">Array of colors</td>
 							</tr>
 							<tr>
 								<td colspan="3" class="explanation">
-									<pre class="eg" title="e.g."><code>picker.<span class="prop">palette</span>; <span class="comment">// return ["#ff0000", "#00ff00"]</span></code></pre>
+									<pre class="eg" title="e.g."><code><span class="comment">// set</span>
+picker.<span class="prop">palette</span> = ['red', '#00ff00', 'rgb(0, 0, 255)']; <span class="comment">// array of color</span>
+<code><span class="comment">// get</span>
+picker.<span class="prop">palette</span>; <span class="comment">// return ["#ff0000","#00ff00","#0000ff"]</span></code></pre>
 								</td>
 							</tr>
 						</tbody>
@@ -519,6 +522,39 @@ AColorPicker.<span class="prop">parseColor</span>(picker.<span class="prop">colo
 							<tr>
 								<td colspan="3" class="explanation">
 									<pre class="eg" title="e.g."><code>picker.<span class="prop">off</span>("<span class="par">change</span>");</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">show</td>
+								<td class="explanation">Show the picker.</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">show</span>();</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">hide</td>
+								<td class="explanation">Hide the picker.</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">hide</span>();</code></pre>
+								</td>
+							</tr>
+						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="2">toggle</td>
+								<td class="explanation">Show or hide the picker.</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg" title="e.g."><code>picker.<span class="prop">toggle</span>();</code></pre>
 								</td>
 							</tr>
 						</tbody>

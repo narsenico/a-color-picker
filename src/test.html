@@ -281,6 +281,46 @@
                 a.palette = ['blue'];
                 expect(a.element.querySelectorAll('.a-color-picker-palette>.a-color-picker-palette-color').length).to.be.equal(1);
             });
+            it('set palette with array', () => {
+                const a = AColorPicker.createPicker({});
+                a.palette = ['red', '#00ff00', 'rgb(0, 0, 255)'];
+                expect(a.palette.length).to.be.equal(3);
+                expect(JSON.stringify(a.palette)).to.be.equal('["#ff0000","#00ff00","#0000ff"]');
+            });
+            it('show/hide with button', async (done) => {
+                const event = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+                const testDisplay = async (picker, func, expected) => {
+                    return new Promise((resolve, reject) => {
+                        button.addEventListener('click', () => {
+                            picker[func]();
+                            let cs = getComputedStyle(picker.element);
+                            if (cs.display === expected) resolve();
+                            else reject(new Error(`calling ${func}: expected ${expected} but found ${cs.display}`));
+                        }, { once: true });
+                        button.dispatchEvent(event);
+                    });
+                };
+                const container = document.createElement('div');
+                const button = document.createElement('button');
+                const a = AColorPicker.from(container);
+                button.innerHTML = 'toggle';
+                container.appendChild(button);
+                document.body.appendChild(container);
+
+                try {
+                    await testDisplay(a[0], 'toggle', 'none');
+                    await testDisplay(a[0], 'toggle', 'inline-flex');
+                    await testDisplay(a[0], 'hide', 'none');
+                    await testDisplay(a[0], 'show', 'inline-flex');
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
         });
         setTimeout(() => {
             mocha.run();
