@@ -302,7 +302,7 @@ class ColorPicker {
             if (this.options.paletteEditable || (this.options.palette && this.options.palette.length > 0)) {
                 this.setPalette(this.paletteRow = this.element.querySelector('.a-color-picker-palette'));
             } else {
-                // TODO: #17 se l'elemento della palette è rimosso non posso modificarne il contenuto a posteriori
+                // #17 se l'elemento della palette è rimosso non posso modificarne il contenuto a posteriori
                 // rimuovo l'elemento dal DOM ma non lo elimino, potrebbe servirmi in seguito
                 this.paletteRow = this.element.querySelector('.a-color-picker-palette');
                 this.paletteRow.remove();
@@ -581,10 +581,7 @@ class ColorPicker {
         this.paletteRow.innerHTML = '';
         this.palette = { };
         // se l'elemento contenitore della palette è stato rimosso (nel costruttore), lo reintegro
-
-        // TODO: isConnected non è supportato da tutti i browser (!)
-
-        if (!this.paletteRow.isConnected) {
+        if (!this.paletteRow.parentElement) {
             this.element.appendChild(this.paletteRow);
         }
         // aggiorno le opzioni e ricreo i controlli
@@ -976,22 +973,30 @@ function createPicker(element, options) {
             return Object.keys(picker.palette).filter(k => picker.palette[k]);
         },
 
-        // TODO: #17 modifica della palette via codice, implementare metodo updatePalette
+        /**
+         * Imposta la palette di color
+         */
         set palette(colors) {
             picker.updatePalette(colors);
         },
 
-        // TODO: #13
+        /**
+         * Mostra il picker.
+         */
         show() {
             picker.element.classList.remove('hidden');
         },
 
-        // TODO: #13
+        /**
+         * Nasconde il picker
+         */
         hide() {
             picker.element.classList.add('hidden');
         },
 
-        // TODO: #13
+        /**
+         * Mostra o nasconde il picker
+         */
         toggle() {
             picker.element.classList.toggle('hidden');
         },
