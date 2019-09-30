@@ -558,6 +558,26 @@ picker.<span class="prop">palette</span>; <span class="comment">// return ["#ff0
 								</td>
 							</tr>
 						</tbody>
+						<tbody>
+							<tr>
+								<td rowspan="3">setColor</td>
+								<td rowspan="2" class="explanation">Set current color</td>
+								<td class="explanation">color</td>
+								<td class="explanation">Same of 'color' property</td>
+							</tr>
+							<tr>
+								<td class="explanation">silent</td>
+								<td class="explanation">If true the change event will not be triggered</td>
+							</tr>
+							<tr>
+								<td colspan="3" class="explanation">
+									<pre class="eg"
+										title="e.g."><code>picker.<span class="prop">setColor</span>("<span class="par">red</span>", <span class="par">true</span>); <span class="comment">// change event not triggered</span></code>
+<code>picker.<span class="prop">setColor</span>("<span class="par">red</span>", <span class="par">false</span>); <span class="comment">// change event triggered</span></code>
+<code>picker.<span class="prop">setColor</span>("<span class="par">red</span>"); <span class="comment">// change event triggered</span></code></pre>
+								</td>
+							</tr>
+						</tbody>
 					</table>
 				</section>
 				<section class="mark">

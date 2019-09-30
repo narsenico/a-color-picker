@@ -31,7 +31,7 @@ import {
 import isPlainObject from 'is-plain-object';
 import HTML_BOX from './acolorpicker.html';
 
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -589,7 +589,7 @@ class ColorPicker {
         this.setPalette(this.paletteRow);
     }
 
-    onValueChanged(prop, value) {
+    onValueChanged(prop, value, options = { silent: false }) {
         // console.log(prop, value);
         switch (prop) {
             case HUE:
@@ -697,18 +697,28 @@ class ColorPicker {
                 this.A = value;
                 break;
         }
-        this.onColorChanged(this.R, this.G, this.B, this.A);
+        // this.onColorChanged(this.R, this.G, this.B, this.A);
+
+        if (this.A === 1) {
+            this.preview.style.backgroundColor = `rgb(${this.R},${this.G},${this.B})`;
+        } else {
+            this.preview.style.backgroundColor = `rgba(${this.R},${this.G},${this.B},${this.A})`;
+        }
+        // #21
+        if (!options || !options.silent) {
+            this.onchange && this.onchange(this.preview.style.backgroundColor);
+        }
     }
 
-    onColorChanged(r, g, b, a) {
-        if (a === 1) {
-            this.preview.style.backgroundColor = `rgb(${r},${g},${b})`;
-        } else {
-            this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
-        }
-        // this.onchange && this.onchange();
-        this.onchange && this.onchange(this.preview.style.backgroundColor);
-    }
+    // onColorChanged(r, g, b, a) {
+    //     if (a === 1) {
+    //         this.preview.style.backgroundColor = `rgb(${r},${g},${b})`;
+    //     } else {
+    //         this.preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
+    //     }
+    //     // this.onchange && this.onchange();
+    //     this.onchange && this.onchange(this.preview.style.backgroundColor);
+    // }
 
     onPaletteColorAdd(color) {
         this.oncoloradd && this.oncoloradd(color);
@@ -897,6 +907,12 @@ function createPicker(element, options) {
          */
         set color(color) {
             picker.onValueChanged(COLOR, color);
+        },
+
+        // #21
+        setColor(color, silent = false) {
+            // modifico il colore senza scatenare alcun evento
+            picker.onValueChanged(COLOR, color, { silent })
         },
 
         /**

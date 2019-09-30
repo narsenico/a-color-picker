@@ -321,6 +321,35 @@
                     done(e);
                 }
             });
+            it('trigger change event', (done) => {
+                const a = AColorPicker.createPicker({});
+                let count = 0;
+                a.on('change', (p, color) => {
+                    if (color === 'rgb(0, 0, 255)') ++count;
+                    else if (color === 'rgb(240, 240, 240)') ++count
+                    else if (color === 'rgb(255, 240, 0)' && ++count === 3) done();
+                    else done(new Error('color not changed ' + color + ' ' + count));
+                });
+                a.color = '#0000ff';
+                a.setColor('#00ff00', true); // non scatenato
+                a.setColor('#f0f0f0', false);
+                a.setColor('#fff000');
+            });
+            it('dont trigger change event', (done) => {
+                const newcolor = '#0000ff';
+                const a = AColorPicker.createPicker({});
+                a.on('change', (p, color) => {
+                    done(new Error('changed color silently but event was fired'))
+                });
+                a.setColor(newcolor, true);
+                setTimeout(() => {
+                    if (a.color === newcolor) {
+                        done();
+                    } else {
+                        done(new Error(`expected ${newcolor}, found ${a.color}`));
+                    }
+                }, 250);
+            });
         });
         setTimeout(() => {
             mocha.run();
