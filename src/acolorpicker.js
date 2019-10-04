@@ -909,7 +909,14 @@ function createPicker(element, options) {
             picker.onValueChanged(COLOR, color);
         },
 
-        // #21
+        /**
+         * Importa il colore corrente.
+         * E' possibile passare un secondo parametro per indicare
+         * se si vuole impostare il colore in modo silente, cio senza scatenare eventi.
+         *
+         * @param {string|array} color il colore
+         * @param {boolean} silent se true il colore viene cambiato senza scatenare eventi, false altrimenti
+         */
         setColor(color, silent = false) {
             // modifico il colore senza scatenare alcun evento
             picker.onValueChanged(COLOR, color, { silent })
