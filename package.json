@@ -1,6 +1,6 @@
 {
   "name": "a-color-picker",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "a color pikcer for web app",
   "main": "./dist/acolorpicker.js",
   "types": "./dist/acolorpicker.d.ts",

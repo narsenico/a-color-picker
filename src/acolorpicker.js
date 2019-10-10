@@ -18,6 +18,7 @@ import {
     rgbToInt,
     intToRgb,
     cssColorToRgb,
+    cssColorToRgba,
     parseColorToRgb,
     parseColorToRgba,
     parseColorToHsl,
@@ -31,7 +32,7 @@ import {
 import isPlainObject from 'is-plain-object';
 import HTML_BOX from './acolorpicker.html';
 
-const VERSION = '1.2.1';
+const VERSION = '1.2.2';
 
 const IS_EDGE = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('Edge') > -1,
     IS_IE11 = typeof window !== 'undefined' && window.navigator.userAgent.indexOf('rv:') > -1;
@@ -599,7 +600,8 @@ class ColorPicker {
                 this.updatePointerH(this.H);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case SATURATION:
                 this.S = value;
@@ -607,7 +609,8 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case LUMINANCE:
                 this.L = value;
@@ -615,7 +618,8 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case RED:
                 this.R = value;
@@ -624,7 +628,8 @@ class ColorPicker {
                 this.updatePointerH(this.H);
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case GREEN:
                 this.G = value;
@@ -633,7 +638,8 @@ class ColorPicker {
                 this.updatePointerH(this.H);
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case BLUE:
                 this.B = value;
@@ -642,14 +648,16 @@ class ColorPicker {
                 this.updatePointerH(this.H);
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case RGB:
                 [this.R, this.G, this.B] = value;
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
             case RGBA_USER:
                 [this.R, this.G, this.B, this.A] = value;
@@ -659,7 +667,8 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
                 break;
             case HSLA_USER:
@@ -670,17 +679,20 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
                 break;
             case RGBHEX:
-                [this.R, this.G, this.B] = cssColorToRgb(value) || [this.R, this.G, this.B];
+                // TODO: #19
+                [this.R, this.G, this.B, this.A] = cssColorToRgba(value) || [this.R, this.G, this.B, this.A];
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.slBarHelper.setHue(this.H);
                 this.updatePointerH(this.H);
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updatePointerA(this.A);
                 break;
             case COLOR:
                 [this.R, this.G, this.B, this.A] = parseColor(value, 'rgba') || [0, 0, 0, 1];
@@ -690,11 +702,14 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
-                this.updateInputRGBHEX(this.R, this.G, this.B);
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
                 break;
             case ALPHA:
                 this.A = value;
+                // TODO: #19
+                this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
         }
         // this.onColorChanged(this.R, this.G, this.B, this.A);
@@ -744,10 +759,15 @@ class ColorPicker {
         this.inputB.value = b;
     }
 
-    updateInputRGBHEX(r, g, b) {
+    // TODO: #19
+    updateInputRGBHEX(r, g, b, a) {
         if (!this.options.showHEX) return;
 
-        this.inputRGBHEX.value = rgbToHex(r, g, b);
+        if (this.options.showAlpha) {
+            this.inputRGBHEX.value = parseColor([r, g, b, a], 'hexcss4');
+        } else {
+            this.inputRGBHEX.value = rgbToHex(r, g, b);
+        }
     }
 
     updatePointerH(h) {
