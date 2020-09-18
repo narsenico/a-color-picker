@@ -1,0 +1,31 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="ie=edge" http-equiv="x-ua-compatible">
+    <title>Demo</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <style>
+      .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="picker"></div>
+    </div>
+    <script src="dist/acolorpicker.js" type="text/javascript"></script>
+    <script>
+      AColorPicker.from('.picker', {
+        showAlpha: true,
+        slBarSize: [280, 150]
+      }).on('change', (picker, color) => {
+        console.log(picker);
+        console.log(color);
+        document.body.style.backgroundColor = color;
+      });
+    </script>
+  </body>
+</html>

@@ -310,10 +310,11 @@ class ColorPicker {
             }
             // preparo in canvas per l'opacità
             if (this.options.showAlpha) {
+                this.setupInput(this.inputALPHA = this.element.querySelector('.a-color-picker-rgb>input[nameref=ALPHA]'));
                 this.setupAlphaCanvas(this.element.querySelector('.a-color-picker-a'));
                 this.alphaPointer = this.element.querySelector('.a-color-picker-a+.a-color-picker-dot');
             } else {
-                this.element.querySelector('.a-color-picker-alpha').remove();
+                this.element.querySelectorAll('.a-color-picker-alpha').forEach(el => el.remove());
             }
             this.element.style.width = `${this.options.slBarSize[0]}px`;
             // imposto il colore iniziale
@@ -600,6 +601,7 @@ class ColorPicker {
                 this.updatePointerH(this.H);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
@@ -609,6 +611,7 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
@@ -618,6 +621,7 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
@@ -656,6 +660,7 @@ class ColorPicker {
                 [this.H, this.S, this.L] = rgbToHsl(this.R, this.G, this.B);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
@@ -667,6 +672,7 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
@@ -679,6 +685,7 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
@@ -692,6 +699,7 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 this.updatePointerA(this.A);
                 break;
             case COLOR:
@@ -702,12 +710,14 @@ class ColorPicker {
                 this.updatePointerSL(this.H, this.S, this.L);
                 this.updateInputHSL(this.H, this.S, this.L);
                 this.updateInputRGB(this.R, this.G, this.B);
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 this.updatePointerA(this.A);
                 break;
             case ALPHA:
                 this.A = value;
+                this.updateInputAlpha(this.A);
                 // TODO: #19
                 this.updateInputRGBHEX(this.R, this.G, this.B, this.A);
                 break;
@@ -757,6 +767,19 @@ class ColorPicker {
         this.inputR.value = r;
         this.inputG.value = g;
         this.inputB.value = b;
+    }
+
+    updateInputAlpha(a) {
+      if (this.options.showAlpha) {
+        this.inputALPHA.value = a;
+        this.updateAlphaCanvasSlider(a);
+      }
+    }
+
+    updateAlphaCanvasSlider(alpha) {
+      const x = alpha * this.options.alphaBarSize[0];
+
+      this.alphaPointer.style.left = (x - 7) + 'px';
     }
 
     // TODO: #19
