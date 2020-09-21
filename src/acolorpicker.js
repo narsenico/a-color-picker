@@ -310,7 +310,11 @@ class ColorPicker {
             }
             // preparo in canvas per l'opacità
             if (this.options.showAlpha) {
-                this.setupInput(this.inputALPHA = this.element.querySelector('.a-color-picker-rgb>input[nameref=ALPHA]'));
+                if (this.options.showRGB) {
+                  // depends on RGB being visible
+                  this.setupInput(this.inputALPHA = this.element.querySelector('.a-color-picker-rgb>input[nameref=ALPHA]'));
+                }
+
                 this.setupAlphaCanvas(this.element.querySelector('.a-color-picker-a'));
                 this.alphaPointer = this.element.querySelector('.a-color-picker-a+.a-color-picker-dot');
             } else {
