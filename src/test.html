@@ -172,6 +172,12 @@
                 const c2 = AColorPicker.parseColor('rgba(255, 0, 0, .5)', 'hexcss4');
                 expect(c1).to.be.equal(c2);
             });
+            it('createPicker with alpha input displayed when ShowAlpha is true', () => {
+              const a = AColorPicker.createPicker({
+                  showRGB: true, showHSL: false, showHEX: false, showAlpha: true
+              });
+              expect(a.element.querySelector('.a-color-picker-alpha-input')).to.not.be.equal(null);
+            });
             it('createPicker with only RGB', () => {
                 const a = AColorPicker.createPicker({
                     showRGB: true, showHSL: false, showHEX: false, showAlpha: false
