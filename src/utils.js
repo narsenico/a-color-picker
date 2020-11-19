@@ -368,7 +368,7 @@ function formatColor(pp, outFormat) {
         case 'rgbcss':
             return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]})`;
         case 'rgbcss4':
-            return `rgb(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
+            return `rgba(${pp[0]}, ${pp[1]}, ${pp[2]}, ${pp[3]})`;
         case 'rgba':
             return pp;
         case 'rgbacss':
