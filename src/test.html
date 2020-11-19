@@ -104,10 +104,10 @@
             });
             // all
             it('parseColor with named color in {}', () => {
-                expect(JSON.stringify(AColorPicker.parseColor('red', {}))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+                expect(JSON.stringify(AColorPicker.parseColor('red', {}))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgba(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
             });
             it('parseColor with named color in new Object()', () => {
-                expect(JSON.stringify(AColorPicker.parseColor('red', new Object()))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgb(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
+                expect(JSON.stringify(AColorPicker.parseColor('red', new Object()))).to.eql('{"rgb":[255,0,0],"rgbcss":"rgb(255, 0, 0)","rgbcss4":"rgba(255, 0, 0, 1)","rgba":[255,0,0,1],"rgbacss":"rgba(255, 0, 0, 1)","hsl":[0,100,50],"hslcss":"hsl(0, 100, 50)","hslcss4":"hsl(0, 100, 50, 1)","hsla":[0,100,50,1],"hslacss":"hsla(0, 100, 50, 1)","hex":"#ff0000","hexcss4":"#ff0000ff","int":16711680}');
             });
             // default
             it('parseColor with named color in unknown outFormat', () => {
